@@ -2,7 +2,7 @@
   "name": "Prowac",
   "version": "0.1.0",
   "description": "Progressive Web App Crawler",
-  "main": "gulpfile.babel.js",
+  "main": "dist/controller.js",
   "engines": {
     "node": ">= 4"
   },
@@ -19,18 +19,37 @@
   "bugs": {
     "url": "https://github.com/mozilla/prowac/issues"
   },
+  "scripts": {
+    "lint": "eslint crawler/**.js dashboard/**.js db/**.js scripts/**.js",
+    "build": "npm-run-all build:**",
+    "build:scripts": "babel scripts -d dist/scripts",
+    "build:crawler": "babel crawler -d dist/crawler",
+    "build:dashboard:js": "babel dashboard/js -d dist/dashboard",
+    "build:dashboard:static": "shjs dist/scripts/build-dashboard-static.js",
+    "start": "npm-run-all --parallel start:* watch:*",
+    "start:crawler": "echo The crawler is not yet implemented",
+    "start:dashboard": "echo The dashboard is not yet implemented",
+    "watch:dashboard:js": "npm run build:dashboard:js -- --watch",
+    "watch:dashboard:static": "npm run build:dashboard:static -- --watch",
+    "watch:crawler": "npm run build:crawler -- --watch",
+    "prepublish": "npm run lint && npm run build",
+    "test": "mocha"
+  },
   "homepage": "https://github.com/mozilla/prowac",
   "dependencies": {
-    "babel-core": "^6.4.5",
-    "babel-eslint": "^4.1.8",
+    "express": "^4.13.4",
+    "npm-run-all": "^1.5.1",
+    "redis": "^2.4.2"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.4.5",
     "babel-preset-es2015": "^6.3.13",
     "babel-preset-es2015-loose": "^7.0.0",
     "babel-preset-stage-0": "^6.3.13",
+    "chai": "^3.5.0",
+    "eslint": "^1.10.3",
     "eslint-config-airbnb": "^4.0.0",
-    "express": "^4.13.4",
-    "gulp": "^3.9.0",
-    "gulp-eslint": "^1.1.1",
-    "gulp-load-plugins": "^1.2.0",
-    "redis": "^2.4.2"
+    "mocha": "^2.4.5",
+    "shelljs": "^0.5.3"
   }
 }

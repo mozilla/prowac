@@ -7,6 +7,5 @@
     "no-param-reassign": [0],
     "prefer-template": 1,
     "prefer-arrow-callback": 1
-  },
-  "parser": "babel-eslint"
+  }
 }
