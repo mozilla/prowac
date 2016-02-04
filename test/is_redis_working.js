@@ -1,5 +1,5 @@
 var assert = require('chai').assert;
-import redis from '../db/redis.js';
+import redis from '../db/backend-redis.js';
 
 describe('Redis', function() {
   describe('is installed', function () {
