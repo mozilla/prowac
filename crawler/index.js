@@ -1,15 +1,8 @@
-import alexa from './lib/alexa.js';
-import redisHelper from './lib/redis-helper.js';
+import alexa from './alexa.js';
+import redis from '../db/redis.js';
 
-function setCurrentCrawl(redis, crawlKey) {
-  return new Promise((resolve, reject) => {
-    redis.set('currentCrawl', crawlKey, (err) => {
-      if (err) {
-        return reject(err);
-      }
-      resolve();
-    });
-  });
+function setCurrentCrawl(client, crawlKey) {
+  return redis.set(client, 'currentCrawl', crawlKey);
 }
 
 // fetches all required resources from url, builds an Object and returns
@@ -20,14 +13,13 @@ function fetchSite(url) {
 }
 
 // returns key to the saved crawl
-function saveCrawl(redis, topSites, key) {
+function saveCrawl(client, topSites, key) {
   if (!key) {
     key = new Date().toISOString();
   }
   return topSites.forEach((url) => fetchSite(url)
-    .then((siteData) => new Promise((resolve, reject) => {
-      redis.hmset(key, url, siteData, (err) => redis.promiseCallback(err, null, resolve, reject));
-    }))
+    // XXX change to the current schema
+    .then((siteData) => redis.hmset(client, key, url, siteData))
   )
   .then(() => key);
 }
@@ -35,18 +27,24 @@ function saveCrawl(redis, topSites, key) {
 // fetches top sites and saves in database
 // checks if a crawl is needed
 function fetchAlexaTopSites() {
-  let redis;
-  return redisHelper.getClient()
-  .then((client) => {
-    redis = client;
-    return redis;
+  let client;
+  return redis.getClient()
+  .then((redisClient) => {
+    client = redisClient;
   })
   .then(() => alexa.fetchTopSites())
-  .then((topSites) => saveCrawl(redis, topSites))
-  .then((crawlKey) => setCurrentCrawl(redis, crawlKey))
-  .then(() => redis.quit());
+  .then((topSites) => saveCrawl(client, topSites))
+  .then((crawlKey) => setCurrentCrawl(client, crawlKey))
+  .then(() => redis.quit(client));
 }
 
 export default {
   fetchAlexaTopSites,
 };
+
+const test = {
+  saveCrawl,
+  setCurrentCrawl,
+};
+
+export { test };

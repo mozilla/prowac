@@ -33,7 +33,7 @@
     "watch:dashboard:static": "npm run build:dashboard:static -- --watch",
     "watch:crawler": "npm run build:crawler -- --watch",
     "prepublish": "npm run lint && npm run build",
-    "test": "mocha"
+    "test": "mocha --compilers js:babel-register"
   },
   "homepage": "https://github.com/mozilla/prowac",
   "dependencies": {
