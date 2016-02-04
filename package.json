@@ -26,6 +26,7 @@
     "build:crawler": "babel crawler -d dist/crawler",
     "build:dashboard:js": "babel dashboard/js -d dist/dashboard",
     "build:dashboard:static": "shjs dist/scripts/build-dashboard-static.js",
+    "build:db": "babel db -d dist/db",
     "start": "npm-run-all --parallel start:* watch:*",
     "start:crawler": "echo The crawler is not yet implemented",
     "start:dashboard": "echo The dashboard is not yet implemented",
@@ -33,7 +34,7 @@
     "watch:dashboard:static": "npm run build:dashboard:static -- --watch",
     "watch:crawler": "npm run build:crawler -- --watch",
     "prepublish": "npm run lint && npm run build",
-    "test": "mocha --compilers js:babel-register"
+    "test": "npm run build && mocha"
   },
   "homepage": "https://github.com/mozilla/prowac",
   "dependencies": {
