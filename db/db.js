@@ -9,8 +9,8 @@ const expectedFunctions = [
 
 var backend;
 
-function setBackend(backendName) {
-  return setBackendFromPath('./backend-' + backendName + '.js');
+function setBackend(backendName, configOpts) {
+  return setBackendFromPath('./backend-' + backendName + '.js', configOpts);
 }
 
 var exported = {
@@ -23,7 +23,7 @@ expectedFunctions.forEach((expectedFn) => {
   }
 });
 
-function setBackendFromPath(backendPath) {
+function setBackendFromPath(backendPath, configOpts) {
   backend = require(backendPath).default;
   expectedFunctions.forEach((expectedFn) => {
     let fn = backend[expectedFn.name];
@@ -32,6 +32,12 @@ function setBackendFromPath(backendPath) {
     }
     exported[expectedFn.name] = backend[expectedFn.name];
   });
+
+  if (backend['configure']) {
+    return backend.configure(configOpts || {});
+  }
+
+  return Promise.resolve();
 }
 
 export default exported;
