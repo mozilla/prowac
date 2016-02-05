@@ -7,9 +7,7 @@ resetCurrentCrawlAggregatedData();
 
 function resetCurrentCrawlAggregatedData() {
   currentCrawlAggregatedData = {
-    haveProbe1: 0,
-    haveProbe2: 0,
-    haveProbe3: 0,
+    totalRecords: 0,
   };
 }
 
@@ -18,7 +16,7 @@ function getHistoricalCrawlData(startIndex, count) {
     return Promise.resolve([]);
   }
 
-  let endIndex = Math.max(startIndex + count, aggregatedInfo.length);
+  let endIndex = Math.min(startIndex + count, aggregatedInfo.length);
   return Promise.resolve(aggregatedInfo.slice(startIndex, endIndex));
 }
 
@@ -28,7 +26,7 @@ function getHistoricalURLData(url, count) {
     return Promise.resolve([]);
   }
 
-  let endIndex = Math.max(count, urlData.length);
+  let endIndex = Math.min(count, urlData.length);
   return Promise.resolve(urlData.slice(0, endIndex));
 }
 
@@ -53,17 +51,17 @@ function updateWithCurrentCrawlResult(url, data) {
   }
   urlData.push(data);
 
-  if (data.hasProbe1) {
-    currentCrawlAggregatedData.haveProbe1 += 1;
+  for (var i in data) {
+    if (data.hasOwnProperty(i) && data[i] === true) {
+      if (!currentCrawlAggregatedData[i]) {
+        currentCrawlAggregatedData[i] = 1;
+      } else {
+        currentCrawlAggregatedData[i] += 1;
+      }
+    }
   }
-
-  if (data.hasProbe2) {
-    currentCrawlAggregatedData.haveProbe2 += 1;
-  }
-
-  if (data.hasProbe3) {
-    currentCrawlAggregatedData.haveProbe3 += 1;
-  }
+  currentCrawlAggregatedData.totalRecords += 1;
+  return Promise.resolve();
 }
 
 function finishCurrentCrawl() {
