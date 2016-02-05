@@ -103,21 +103,24 @@ function finishCurrentCrawl() {
 }
 
 function configure(opts) {
-  let url = process.env.REDIS_URL;
-  if (opts.url) {
-    url = opts.url;
-  }
-
-  let createClientOpts = {};
-  if (opts.createClientOpts) {
-    createClientOpts = opts.createClientOpts;
-  }
-
-  client = redis.createClient(url, createClientOpts);
-
   return new Promise((resolve, reject) => {
+    if (!opts.url) {
+      return reject(new Error('Redis URL must be specified'));
+    }
+
+    let createClientOpts = {};
+    if (opts.createClientOpts) {
+      createClientOpts = opts.createClientOpts;
+    }
+
+    try {
+      client = redis.createClient(opts.url, createClientOpts);
+    } catch (err) {
+      return reject(err);
+    }
+
     if (!opts.dbTestNumber) {
-      return Promise.resolve();
+      return resolve();
     }
 
     client.select(opts.dbTestNumber, (err) => {
