@@ -32,7 +32,7 @@ function getHistoricalURLData(url, count) {
 
 function popURL() {
   if (currentCrawlRemainingUrls.length === 0) {
-    return Promise.reject(new Error('URL list is empty'));
+    return Promise.resolve(null);
   }
 
   return Promise.resolve(currentCrawlRemainingUrls.pop());
