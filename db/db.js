@@ -1,8 +1,6 @@
 const expectedFunctions = [
   { name: 'getHistoricalCrawlData' },
   { name: 'getHistoricalURLData' },
-  { name: 'popURL' },
-  { name: 'pushURLs' },
   { name: 'updateWithCurrentCrawlResult' },
   { name: 'finishCurrentCrawl' },
 ];
