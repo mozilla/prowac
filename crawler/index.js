@@ -1,5 +1,5 @@
 import alexa from './alexa.js';
-import redis from '../db/redis.js';
+import redis from '../db/backend-redis.js';
 
 function setCurrentCrawl(client, crawlKey) {
   return redis.set(client, 'currentCrawl', crawlKey);
