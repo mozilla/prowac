@@ -48,7 +48,7 @@ function startProcessingJobs() {
   return new Promise((resolve, reject) => {
     // TODO: Configurable number of urls processing concurrently
     queue.process('url', 50, (job, done) => {
-      urlJobProcessor.process(job.data).then((result) => {
+      urlJobProcessor.processUrlJob(job.data).then((result) => {
         return urlStore.updateWithCurrentCrawlResult(result).then(() => {
           done(null, result);
         });
