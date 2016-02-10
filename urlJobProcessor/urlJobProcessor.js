@@ -3,7 +3,9 @@ import {default as fetch} from 'node-fetch';
 let probes = [];
 
 function configure(opts) {
-
+  // TODO: Set up probes. They'll be specified somehow in opts and we
+  // should be able to load each probe individually. Maybe something
+  // like `require('./probe-' + probeName + '.js');`
 }
 
 function fetchAllResources(url) {
