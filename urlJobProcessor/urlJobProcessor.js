@@ -13,8 +13,3 @@ function processUrlJob(urlJob) {
 export default {
   processUrlJob,
 };
-
-const test = {
-};
-
-export { test };
