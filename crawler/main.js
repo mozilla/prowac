@@ -1,22 +1,22 @@
-import {default as urlJobPopulator} from '../urlJobPopulator/urlJobPopulator.js';
-import {default as dataStore} from '../dataStore/dataStore';
-import {default as urlJobProcessor} from '../urlJobProcessor/urlJobProcessor.js';
-import {default as kue} from 'kue';
+import { default as urlJobPopulator } from '../urlJobPopulator/urlJobPopulator.js';
+import { default as urlJobProcessor } from '../urlJobProcessor/urlJobProcessor.js';
+import { default as dataStore } from '../dataStore/dataStore.js';
+import { default as kue } from 'kue';
 
 // TODO: Clean up jobs
 
 let addingNewJobs = false;
-const queue = kue.createQueue({jobEvents: false});
+const queue = kue.createQueue({ jobEvents: false });
 
 queue.on('error', (err) => {
-  console.error('UNCAUGHT ERROR: ' + err);
+  console.error(`UNCAUGHT ERROR: ${err}`);
 });
 
 process.on('SIGINT', () => {
   queue.shutdown(5000, (err) => {
     console.log('URL job queue shutdown initiated');
     if (err) {
-      console.error('Error shutting down Kue: ' + err);
+      console.error(`Error shutting down Kue: ${err}`);
       return process.exit(1);
     }
     console.log('URL job queue shutdown complete');
@@ -38,30 +38,28 @@ function addJobs(urls) {
     // TODO: Configurable retry attempts
     queue.create('url', url).attempts(5).backoff(true).save((err) => {
       if (err) {
-        console.error('FAILED to add job: ' + url);
+        console.error(`FAILED to add job: ${url}`);
       }
     });
   });
 }
 
 function startProcessingJobs() {
-  return new Promise((resolve, reject) => {
-    // TODO: Configurable number of urls processing concurrently
-    queue.process('url', 50, (job, done) => {
-      urlJobProcessor.processUrlJob(job.data).then((result) => {
-        return urlStore.updateWithCurrentCrawlResult(result).then(() => {
-          done(null, result);
-        });
-      }).catch((err) => {
-        done(err);
+  // TODO: Configurable number of urls processing concurrently
+  queue.process('url', 50, (job, done) => {
+    urlJobProcessor.processUrlJob(job.data).then((result) => {
+      return dataStore.updateWithCurrentCrawlResult(result).then(() => {
+        done(null, result);
       });
+    }).catch((err) => {
+      done(err);
     });
   });
 }
 
 // TODO Configure from a config file
 
-let configPromises = [];
+const configPromises = [];
 
 configPromises.push(urlJobPopulator.configure({
   backendName: 'static',
@@ -76,7 +74,7 @@ configPromises.push(urlJobProcessor.configure({
 Promise.all(configPromises).then(() => {
   queue.inactiveCount((err, total) => {
     if (err) {
-      return console.error('inactiveCount failure: ' + err);
+      return console.error(`inactiveCount failure: ${err}`);
     }
 
     // FIXME: We need to also look at completeCount and failedCount
@@ -92,4 +90,4 @@ Promise.all(configPromises).then(() => {
 }).catch((err) => {
   console.error(err);
   return process.exit(1);
-});;
+});

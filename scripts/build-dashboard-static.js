@@ -1,4 +1,4 @@
-require('shelljs/global');
+import { default as shelljs } from 'shelljs';
 
-mkdir('-p', 'dist/dashboard');
-cp('-r', './dashboard/static/*', 'dist/dashboard');
+shelljs.mkdir('-p', 'dist/dashboard');
+shelljs.cp('-r', './dashboard/static/*', 'dist/dashboard');

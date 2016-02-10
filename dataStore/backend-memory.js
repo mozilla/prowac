@@ -1,9 +1,6 @@
-var aggregatedInfo = [];
-var historicalData = {};
-var currentCrawlRemainingUrls = [];
-var currentCrawlAggregatedData;
-
-resetCurrentCrawlAggregatedData();
+const aggregatedInfo = [];
+const historicalData = {};
+let currentCrawlAggregatedData;
 
 function resetCurrentCrawlAggregatedData() {
   currentCrawlAggregatedData = {
@@ -11,22 +8,24 @@ function resetCurrentCrawlAggregatedData() {
   };
 }
 
+resetCurrentCrawlAggregatedData();
+
 function getHistoricalCrawlData(startIndex, count) {
   if (startIndex >= aggregatedInfo.length) {
     return Promise.resolve([]);
   }
 
-  let endIndex = Math.min(startIndex + count, aggregatedInfo.length);
+  const endIndex = Math.min(startIndex + count, aggregatedInfo.length);
   return Promise.resolve(aggregatedInfo.slice(startIndex, endIndex));
 }
 
 function getHistoricalURLData(url, count) {
-  let urlData = historicalData[url];
+  const urlData = historicalData[url];
   if (!urlData || urlData.length === 0) {
     return Promise.resolve([]);
   }
 
-  let endIndex = Math.min(count, urlData.length);
+  const endIndex = Math.min(count, urlData.length);
   return Promise.resolve(urlData.slice(0, endIndex));
 }
 
@@ -38,7 +37,7 @@ function updateWithCurrentCrawlResult(url, data) {
   }
   urlData.push(data);
 
-  for (var i in data) {
+  for (const i in data) {
     if (data.hasOwnProperty(i) && data[i] === true) {
       if (!currentCrawlAggregatedData[i]) {
         currentCrawlAggregatedData[i] = 1;
