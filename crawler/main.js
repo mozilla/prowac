@@ -60,11 +60,20 @@ function startProcessingJobs() {
 }
 
 // TODO Configure from a config file
-urlJobPopulator.configure({
+
+let configPromises = [];
+
+configPromises.push(urlJobPopulator.configure({
   backendName: 'static',
   progressCallback: addJobs,
   finishedCallback: () => { addingNewJobs = false; },
-}).then(() => {
+}));
+
+configPromises.push(urlJobProcessor.configure({
+
+}));
+
+Promise.all(configPromises).then(() => {
   queue.inactiveCount((err, total) => {
     if (err) {
       return console.error('inactiveCount failure: ' + err);
