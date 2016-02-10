@@ -30,8 +30,6 @@ function populateJobs() {
   }
 
   addingNewJobs = true;
-  urlJobPopulator.setProgressCallback(addJobs);
-  urlJobPopulator.setFinishedCallback(() => { addingNewJobs = false; });
   urlJobPopulator.populate();
 }
 
@@ -61,18 +59,28 @@ function startProcessingJobs() {
   });
 }
 
-queue.inactiveCount((err, total) => {
-  if (err) {
-    return console.error('inactiveCount failure: ' + err);
-  }
+// TODO Configure from a config file
+urlJobPopulator.configure({
+  backendName: 'static',
+  progressCallback: addJobs,
+  finishedCallback: () => { addingNewJobs = false; },
+}).then(() => {
+  queue.inactiveCount((err, total) => {
+    if (err) {
+      return console.error('inactiveCount failure: ' + err);
+    }
 
-  // FIXME: We need to also look at completeCount and failedCount
-  if (total === 0) {
-    console.log('No crawl in progress, starting new crawl');
-    populateJobs();
-  } else {
-    console.log('Resuming previous crawl');
-  }
+    // FIXME: We need to also look at completeCount and failedCount
+    if (total === 0) {
+      console.log('No crawl in progress, starting new crawl');
+      populateJobs();
+    } else {
+      console.log('Resuming previous crawl');
+    }
 
-  startProcessingJobs();
-});
+    startProcessingJobs();
+  });
+}).catch((err) => {
+  console.error(err);
+  return process.exit(1);
+});;
