@@ -60,8 +60,6 @@ function finishCurrentCrawl() {
 export default {
   getHistoricalCrawlData,
   getHistoricalURLData,
-  popURL,
-  pushURLs,
   updateWithCurrentCrawlResult,
   finishCurrentCrawl,
 };

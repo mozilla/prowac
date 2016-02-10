@@ -113,8 +113,6 @@ function configure(opts) {
 export default {
   getHistoricalCrawlData,
   getHistoricalURLData,
-  popURL,
-  pushURLs,
   updateWithCurrentCrawlResult,
   finishCurrentCrawl,
   configure,

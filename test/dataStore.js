@@ -1,15 +1,15 @@
 import {assert} from 'chai';
-import {default as db} from '../dist/db/db.js';
+import {default as dataStore} from '../dist/dataStore/dataStore.js';
 
 function addCrawl() {
-  return db.updateWithCurrentCrawlResult('url1.com', {
+  return dataStore.updateWithCurrentCrawlResult('url1.com', {
     timestamp: new Date(),
     testProbe1: false,
     testProbe2: false,
     testProbe3: true,
     extraData: 'something here',
   }).then(() => {
-    return db.updateWithCurrentCrawlResult('url2.com', {
+    return dataStore.updateWithCurrentCrawlResult('url2.com', {
       timestamp: new Date(),
       testProbe1: false,
       testProbe2: true,
@@ -17,7 +17,7 @@ function addCrawl() {
       extraData: 'something else here',
     });
   }).then(() => {
-    return db.updateWithCurrentCrawlResult('url3.com', {
+    return dataStore.updateWithCurrentCrawlResult('url3.com', {
       timestamp: new Date(),
       testProbe1: true,
       testProbe2: true,
@@ -25,12 +25,12 @@ function addCrawl() {
       extraData: 'and another thing',
     });
   }).then(() => {
-    return db.finishCurrentCrawl();
+    return dataStore.finishCurrentCrawl();
   });
 }
 
 function testGetHistoricalCrawlData(numInDB, startIndex, count) {
-  return db.getHistoricalCrawlData(startIndex, count).then((data) => {
+  return dataStore.getHistoricalCrawlData(startIndex, count).then((data) => {
     assert.isArray(data);
     assert.strictEqual(data.length, Math.max(0, Math.min(numInDB - startIndex, count)));
     data.forEach((dataItem) => {
@@ -45,7 +45,7 @@ function testGetHistoricalCrawlData(numInDB, startIndex, count) {
 };
 
 function testGetHistoricalURLData(numInDB, count) {
-  return db.getHistoricalURLData('url1.com', count).then((data) => {
+  return dataStore.getHistoricalURLData('url1.com', count).then((data) => {
     assert.isArray(data);
     assert.strictEqual(data.length, Math.min(numInDB, count));
     data.forEach((dataItem) => {
@@ -54,7 +54,7 @@ function testGetHistoricalURLData(numInDB, count) {
       assert.strictEqual(dataItem.testProbe3, true);
     });
   }).then(() => {
-    return db.getHistoricalURLData('url2.com', count).then((data) => {
+    return dataStore.getHistoricalURLData('url2.com', count).then((data) => {
       assert.isArray(data);
       assert.strictEqual(data.length, Math.min(numInDB, count));
       data.forEach((dataItem) => {
@@ -64,7 +64,7 @@ function testGetHistoricalURLData(numInDB, count) {
       });
     });
   }).then(() => {
-    return db.getHistoricalURLData('url3.com', count).then((data) => {
+    return dataStore.getHistoricalURLData('url3.com', count).then((data) => {
       assert.isArray(data);
       assert.strictEqual(data.length, Math.min(numInDB, count));
       data.forEach((dataItem) => {
@@ -78,7 +78,7 @@ function testGetHistoricalURLData(numInDB, count) {
 
 describe('DB with memory backend', () => {
   before(() => {
-    return db.setBackend('memory');
+    return dataStore.setBackend('memory');
   });
 
   doTests();
@@ -87,7 +87,7 @@ describe('DB with memory backend', () => {
 // TODO: Skip this test if redis isn't installed
 describe('DB with redis backend', () => {
   before(() => {
-    return db.setBackend('redis', {
+    return dataStore.setBackend('redis', {
       url: 'redis://localhost:6379',
       dbTestNumber: 5,
     });
@@ -97,30 +97,6 @@ describe('DB with redis backend', () => {
 });
 
 function doTests() {
-  context('storing and retrieving URLs', () => {
-    it('should return null when list is empty', () => {
-      return db.popURL().then((ret) => {
-        assert.strictEqual(ret, null);
-      });
-    });
-
-    it('should push and pop in expected order', () => {
-      return db.pushURLs(['url1.com', 'url2.com', 'url3.com']).then(() => {
-        return db.popURL();
-      }).then((url3) => {
-        assert.strictEqual(url3, 'url3.com');
-      }).then(() => {
-        return db.popURL();
-      }).then((url2) => {
-        assert.strictEqual(url2, 'url2.com');
-      }).then(() => {
-        return db.popURL();
-      }).then((url1) => {
-        assert.strictEqual(url1, 'url1.com');
-      });
-    });
-  });
-
   context('with 0 completed crawls', () => {
     context('getHistoricalCrawlData', () => {
       it('should return empty list', () => {
