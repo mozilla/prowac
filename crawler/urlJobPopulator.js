@@ -7,7 +7,7 @@ function configure(configOpts) {
   if (configOpts.backendPath) {
     backendPath = configOpts.backendPath;
   } else if (configOpts.backendName) {
-    backendPath = `./backend-${configOpts.backendName}.js`;
+    backendPath = `./UrlJobPopulatorBackends/${configOpts.backendName}.js`;
   }
 
   if (!backendPath) {

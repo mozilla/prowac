@@ -1,5 +1,5 @@
-import { default as urlJobPopulator } from '../urlJobPopulator/urlJobPopulator.js';
-import { default as urlJobProcessor } from '../urlJobProcessor/urlJobProcessor.js';
+import { default as urlJobPopulator } from './urlJobPopulator.js';
+import { default as urlJobProcessor } from './urlJobProcessor.js';
 import { default as dataStore } from '../dataStore/dataStore.js';
 import { default as kue } from 'kue';
 
