@@ -224,7 +224,6 @@ describe('DB with memory backend', () => {
   doTests();
 });
 
-// TODO: Skip this test if redis isn't installed
 describe('DB with redis backend', () => {
   before(() => {
     return dataStore.configure({
