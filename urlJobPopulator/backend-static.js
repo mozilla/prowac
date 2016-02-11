@@ -18,7 +18,7 @@ function configure(opts) {
 function populate(progressCallback, finishedCallback) {
   let currentIndex = 0;
   setTimeout(() => {
-    let ret = [];
+    const ret = [];
     if (currentIndex === list.length) {
       return finishedCallback();
     }
@@ -29,7 +29,6 @@ function populate(progressCallback, finishedCallback) {
     ret.push(list[currentIndex++]);
 
     return progressCallback(ret);
-
   }, 100);
 }
 

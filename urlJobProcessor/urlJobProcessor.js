@@ -1,15 +1,15 @@
-import {default as fetch} from 'node-fetch';
+import { default as fetch } from 'node-fetch';
 
-let probes = [];
+const probes = [];
 
-function configure(opts) {
+function configure(/* opts */) {
   // TODO: Set up probes. They'll be specified somehow in opts and we
   // should be able to load each probe individually. Maybe something
   // like `require('./probe-' + probeName + '.js');`
 }
 
 function fetchAllResources(url) {
-  let ret = { html: '', js: '', sw: '' };
+  const ret = { html: '', js: '', sw: '' };
   return fetch(url).then((response) => {
     return response.text().then((htmlText) => {
       ret.html += htmlText;
@@ -24,10 +24,10 @@ function fetchAllResources(url) {
 }
 
 function processUrlJob(urlJob) {
-  console.log('processUrlJob - ' + urlJob);
+  console.log(`processUrlJob - ${urlJob}`);
 
   return fetchAllResources(urlJob.url).then((pageResources) => {
-    let promises = [];
+    const promises = [];
     probes.forEach((probeFunc) => {
       promises.push(probeFunc.apply(null, pageResources));
     });

@@ -7,7 +7,7 @@ function configure(configOpts) {
   if (configOpts.backendPath) {
     backendPath = configOpts.backendPath;
   } else if (configOpts.backendName) {
-    backendPath = './backend-' + configOpts.backendName + '.js';
+    backendPath = `./backend-${configOpts.backendName}.js`;
   }
 
   if (!backendPath) {
@@ -24,7 +24,7 @@ function configure(configOpts) {
 
   backend = require(backendPath).default;
 
-  if (!backend['populate']) {
+  if (!backend.populate) {
     backend = null;
     return Promise.reject(new Error('urlJobPopulator backend must implement populate'));
   }
@@ -33,7 +33,7 @@ function configure(configOpts) {
   finishedCallback = configOpts.finishedCallback;
 
   let configPromise = Promise.resolve();
-  if (backend['configure']) {
+  if (backend.configure) {
     configPromise = backend.configure(configOpts.backendConfigOpts || {});
   }
 

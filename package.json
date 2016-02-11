@@ -20,7 +20,7 @@
     "url": "https://github.com/mozilla/prowac/issues"
   },
   "scripts": {
-    "lint": "eslint crawler/**.js dashboard/**.js dataStore/**.js scripts/**.js",
+    "lint": "eslint crawler/**.js dashboard/**.js dataStore/**.js scripts/**.js urlJobPopulator/**.js urlJobProcessor/**.js",
     "build": "npm-run-all build:**",
       "build:scripts": "babel scripts -d dist/scripts",
       "build:crawler": "babel crawler -d dist/crawler",
