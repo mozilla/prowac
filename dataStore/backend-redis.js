@@ -31,28 +31,6 @@ function getHistoricalURLData(url, count) {
   });
 }
 
-function popURL() {
-  return new Promise((resolve, reject) => {
-    client.lpop('current-crawl-remaining-urls', (err, response) => {
-      if (err) {
-        return reject(err);
-      }
-      return resolve(response);
-    });
-  });
-}
-
-function pushURLs(urls) {
-  return new Promise((resolve, reject) => {
-    client.lpush('current-crawl-remaining-urls', urls, (err, response) => {
-      if (err) {
-        return reject(err);
-      }
-      return resolve();
-    });
-  });
-}
-
 function addPromise(promises) {
   let resolve;
   let reject;
@@ -135,8 +113,6 @@ function configure(opts) {
 export default {
   getHistoricalCrawlData,
   getHistoricalURLData,
-  popURL,
-  pushURLs,
   updateWithCurrentCrawlResult,
   finishCurrentCrawl,
   configure,

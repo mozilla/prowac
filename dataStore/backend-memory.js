@@ -30,19 +30,6 @@ function getHistoricalURLData(url, count) {
   return Promise.resolve(urlData.slice(0, endIndex));
 }
 
-function popURL() {
-  if (currentCrawlRemainingUrls.length === 0) {
-    return Promise.resolve(null);
-  }
-
-  return Promise.resolve(currentCrawlRemainingUrls.pop());
-}
-
-function pushURLs(urls) {
-  currentCrawlRemainingUrls = currentCrawlRemainingUrls.concat(urls);
-  return Promise.resolve();
-}
-
 function updateWithCurrentCrawlResult(url, data) {
   let urlData = historicalData[url];
   if (!urlData) {
@@ -73,8 +60,6 @@ function finishCurrentCrawl() {
 export default {
   getHistoricalCrawlData,
   getHistoricalURLData,
-  popURL,
-  pushURLs,
   updateWithCurrentCrawlResult,
   finishCurrentCrawl,
 };
