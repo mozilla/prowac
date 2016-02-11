@@ -7,14 +7,9 @@ const expectedFunctions = [
   { name: 'finishCurrentCrawl' },
 ];
 
-const exported = {
-  setBackend,
-  setBackendFromPath,
-};
-
 let backend;
 
-function setBackendFromPath(backendPath, configOpts) {
+function setBackendFromPath(backendPath) {
   backend = require(backendPath).default;
   expectedFunctions.forEach((expectedFn) => {
     const fn = backend[expectedFn.name];
@@ -24,16 +19,32 @@ function setBackendFromPath(backendPath, configOpts) {
     exported[expectedFn.name] = backend[expectedFn.name];
   });
 
-  if (backend.configure) {
-    return backend.configure(configOpts || {});
-  }
-
   return Promise.resolve();
 }
 
-function setBackend(backendName, configOpts) {
-  return setBackendFromPath(`./backend-${backendName}.js`, configOpts);
+function configure(configOpts) {
+  let backendPath;
+  if (configOpts.backendPath) {
+    backendPath = configOpts.backendPath;
+  } else if (configOpts.backendName) {
+    backendPath = `./backend-${configOpts.backendName}.js`;
+  }
+
+  if (!backendPath) {
+    return Promise.reject(new Error('dataStore must be configured with a backend'));
+  }
+
+  setBackendFromPath(backendPath);
+
+  if (backend.configure) {
+    return backend.configure(configOpts.backendOpts || {});
+  }
+  return Promise.resolve();
 }
+
+const exported = {
+  configure,
+};
 
 expectedFunctions.forEach((expectedFn) => {
   exported[expectedFn.name] = () => {

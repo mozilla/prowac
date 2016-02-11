@@ -10,7 +10,7 @@ function configure(/* opts */) {
 
 function fetchAllResources(url) {
   const ret = { html: '', js: '', sw: '' };
-  return fetch(url).then((response) => {
+  return fetch(`http://${url}`).then((response) => {
     return response.text().then((htmlText) => {
       ret.html += htmlText;
     });
@@ -26,7 +26,7 @@ function fetchAllResources(url) {
 function processUrlJob(urlJob) {
   console.log(`processUrlJob - ${urlJob}`);
 
-  return fetchAllResources(urlJob.url).then((pageResources) => {
+  return fetchAllResources(urlJob).then((pageResources) => {
     const promises = [];
     probes.forEach((probeFunc) => {
       promises.push(probeFunc.apply(null, pageResources));

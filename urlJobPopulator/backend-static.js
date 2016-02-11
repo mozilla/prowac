@@ -8,6 +8,9 @@ let list = [
   'mozilla.com',
 ];
 
+let currentIndex = 0;
+let intervalID;
+
 function configure(opts) {
   if (opts.urls) {
     list = opts.urls;
@@ -15,21 +18,23 @@ function configure(opts) {
   return Promise.resolve();
 }
 
-function populate(progressCallback, finishedCallback) {
-  let currentIndex = 0;
-  setTimeout(() => {
-    const ret = [];
-    if (currentIndex === list.length) {
-      return finishedCallback();
-    }
-    ret.push(list[currentIndex++]);
-    if (currentIndex === list.length) {
-      return progressCallback(ret);
-    }
-    ret.push(list[currentIndex++]);
-
+function actuallyPopulate(progressCallback, finishedCallback) {
+  const ret = [];
+  if (currentIndex === list.length) {
+    clearInterval(intervalID);
+    return finishedCallback();
+  }
+  ret.push(list[currentIndex++]);
+  if (currentIndex === list.length) {
     return progressCallback(ret);
-  }, 100);
+  }
+  ret.push(list[currentIndex++]);
+
+  return progressCallback(ret);
+}
+
+function populate(progressCallback, finishedCallback) {
+  intervalID = setInterval(actuallyPopulate.bind(null, progressCallback, finishedCallback), 100);
 }
 
 export default {

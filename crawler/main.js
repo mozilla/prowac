@@ -67,6 +67,13 @@ configPromises.push(urlJobPopulator.configure({
   finishedCallback: () => { addingNewJobs = false; },
 }));
 
+configPromises.push(dataStore.configure({
+  backendName: 'redis',
+  backendOpts: {
+    url: 'redis://localhost:6379',
+  },
+}));
+
 configPromises.push(urlJobProcessor.configure({
 
 }));
