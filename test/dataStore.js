@@ -1,5 +1,5 @@
-import {assert} from 'chai';
-import {default as dataStore} from '../dist/dataStore/dataStore.js';
+import { assert } from 'chai';
+import { default as dataStore } from '../dist/dataStore/dataStore.js';
 
 function addCrawl() {
   return dataStore.updateWithCurrentCrawlResult('url1.com', {
@@ -42,7 +42,7 @@ function testGetHistoricalCrawlData(numInDB, startIndex, count) {
       assert.equal(dataItem.testProbe3, 3);
     });
   });
-};
+}
 
 function testGetHistoricalURLData(numInDB, count) {
   return dataStore.getHistoricalURLData('url1.com', count).then((data) => {
@@ -75,26 +75,6 @@ function testGetHistoricalURLData(numInDB, count) {
     });
   });
 }
-
-describe('DB with memory backend', () => {
-  before(() => {
-    return dataStore.setBackend('memory');
-  });
-
-  doTests();
-});
-
-// TODO: Skip this test if redis isn't installed
-describe('DB with redis backend', () => {
-  before(() => {
-    return dataStore.setBackend('redis', {
-      url: 'redis://localhost:6379',
-      dbTestNumber: 5,
-    });
-  });
-
-  doTests();
-});
 
 function doTests() {
   context('with 0 completed crawls', () => {
@@ -234,4 +214,26 @@ function doTests() {
       });
     });
   });
-};
+}
+
+describe('DB with memory backend', () => {
+  before(() => {
+    return dataStore.configure({ backendName: 'memory' });
+  });
+
+  doTests();
+});
+
+describe('DB with redis backend', () => {
+  before(() => {
+    return dataStore.configure({
+      backendName: 'redis',
+      backendOpts: {
+        url: 'redis://localhost:6379',
+        dbTestNumber: 5,
+      },
+    });
+  });
+
+  doTests();
+});

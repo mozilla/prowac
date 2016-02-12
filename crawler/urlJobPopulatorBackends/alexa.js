@@ -7,9 +7,7 @@ const alexaUrl = 'http://s3.amazonaws.com/alexa-static/top-1m.csv.zip';
 // converts to an array and returns
 function fetchTopSites() {
   // XXX write this part
-  return new Promise((resolve, reject) => {
-    throw new Error('not implemented' + alexaUrl + resolve + reject);
-  });
+  return Promise.reject(new Error(`not implemented ${alexaUrl}`));
 }
 
 export default {

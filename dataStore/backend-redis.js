@@ -1,13 +1,13 @@
 import redis from 'redis';
 
-var client;
+let client;
 
 function getHistoricalCrawlData(startIndex, count) {
   return new Promise((resolve, reject) => {
     client.lrange('aggregated-info', startIndex, startIndex + count - 1, (err, response) => {
       if (err) {
         return reject(err);
-      };
+      }
       response.forEach((json, index, arr) => {
         arr[index] = JSON.parse(json);
       });
@@ -18,11 +18,11 @@ function getHistoricalCrawlData(startIndex, count) {
 
 function getHistoricalURLData(url, count) {
   return new Promise((resolve, reject) => {
-    let key = 'historical-data:' + url;
+    const key = `historical-data:${url}`;
     client.lrange(key, 0, count - 1, (err, response) => {
       if (err) {
         return reject(err);
-      };
+      }
       response.forEach((json, index, arr) => {
         arr[index] = JSON.parse(json);
       });
@@ -34,26 +34,26 @@ function getHistoricalURLData(url, count) {
 function addPromise(promises) {
   let resolve;
   let reject;
-  let p = new Promise((res, rej) => {
+  const p = new Promise((res, rej) => {
     resolve = res;
     reject = rej;
   });
   promises.push(p);
 
-  return ((err, response) => {
+  return (err, response) => {
     if (err) {
       return reject(err);
     }
     return resolve(response);
-  });
+  };
 }
 
 function updateWithCurrentCrawlResult(url, data) {
-  let promises = [];
+  const promises = [];
 
-  client.lpush('historical-data:' + url, JSON.stringify(data), addPromise(promises));
+  client.lpush(`historical-data:${url}`, JSON.stringify(data), addPromise(promises));
 
-  for (var i in data) {
+  for (const i in data) {
     if (data.hasOwnProperty(i) && data[i] === true) {
       client.hincrby('current-crawl-aggregated-data', i, 1, addPromise(promises));
     }
@@ -70,7 +70,7 @@ function finishCurrentCrawl() {
         return reject(err);
       }
 
-      let promises = [];
+      const promises = [];
       client.lpush('aggregated-info', JSON.stringify(response), addPromise(promises));
       client.del('current-crawl-aggregated-data', addPromise(promises));
       return Promise.all(promises).then(() => {

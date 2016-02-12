@@ -4,7 +4,7 @@
   "description": "Progressive Web App Crawler",
   "main": "dist/controller.js",
   "engines": {
-    "node": ">= 4"
+    "node": ">= 5"
   },
   "repository": {
     "type": "git",
@@ -20,28 +20,29 @@
     "url": "https://github.com/mozilla/prowac/issues"
   },
   "scripts": {
-    "lint": "eslint crawler/**.js dashboard/**.js datastore/**.js scripts/**.js",
+    "lint": "eslint crawler/**.js dashboard/**.js dataStore/**.js scripts/**.js test/**.js",
     "build": "npm-run-all build:**",
-    "build:scripts": "babel scripts -d dist/scripts",
-    "build:crawler": "babel crawler -d dist/crawler",
-    "build:dashboard:js": "babel dashboard/js -d dist/dashboard",
-    "build:dashboard:static": "shjs dist/scripts/build-dashboard-static.js",
-    "build:datastore": "babel datastore -d dist/datastore",
-    "build:urlJobPopulator": "babel urlJobPopulator -d dist/urlJobPopulator",
-    "build:urlJobProcessor": "babel urlJobProcessor -d dist/urlJobProcessor",
-    "start": "npm-run-all --parallel start:* watch:*",
-    "start:crawler": "echo The crawler is not yet implemented",
-    "start:dashboard": "echo The dashboard is not yet implemented",
+      "build:scripts": "babel scripts -d dist/scripts",
+      "build:crawler": "babel crawler -d dist/crawler",
+      "build:dashboard:js": "babel dashboard/js -d dist/dashboard",
+      "build:dashboard:static": "shjs dist/scripts/build-dashboard-static.js",
+      "build:datastore": "babel dataStore -d dist/dataStore",
+    "start": "npm-run-all --parallel start:*",
+      "start:crawler": "node dist/crawler/main.js",
+      "start:dashboard": "echo The dashboard is not yet implemented",
+    "watch:crawler": "npm run build:crawler -- --watch",
     "watch:dashboard:js": "npm run build:dashboard:js -- --watch",
     "watch:dashboard:static": "npm run build:dashboard:static -- --watch",
-    "watch:crawler": "npm run build:crawler -- --watch",
+    "watch:datastore": "npm run build:datastore -- --watch",
     "prepublish": "npm run lint && npm run build",
     "test": "npm run build && mocha"
   },
   "homepage": "https://github.com/mozilla/prowac",
   "dependencies": {
     "express": "^4.13.4",
+    "kue": "^0.10.5",
     "npm-run-all": "^1.5.1",
+    "node-fetch": "^1.3.3",
     "redis": "^2.4.2"
   },
   "devDependencies": {
@@ -52,7 +53,6 @@
     "chai": "^3.5.0",
     "eslint": "^1.10.3",
     "eslint-config-airbnb": "^4.0.0",
-    "kue": "^0.10.5",
     "mocha": "^2.4.5",
     "shelljs": "^0.5.3"
   }

@@ -1,3 +1,5 @@
+/* eslint no-use-before-define: 0 */
+
 const expectedFunctions = [
   { name: 'getHistoricalCrawlData' },
   { name: 'getHistoricalURLData' },
@@ -5,37 +7,49 @@ const expectedFunctions = [
   { name: 'finishCurrentCrawl' },
 ];
 
-var backend;
+let backend;
 
-function setBackend(backendName, configOpts) {
-  return setBackendFromPath('./backend-' + backendName + '.js', configOpts);
-}
-
-var exported = {
-  setBackend,
-  setBackendFromPath,
-};
-expectedFunctions.forEach((expectedFn) => {
-  exported[expectedFn.name] = function() {
-    return Promise.reject(new Error('A data store backend must be set'));
-  }
-});
-
-function setBackendFromPath(backendPath, configOpts) {
+function setBackendFromPath(backendPath) {
   backend = require(backendPath).default;
   expectedFunctions.forEach((expectedFn) => {
-    let fn = backend[expectedFn.name];
+    const fn = backend[expectedFn.name];
     if (!fn) {
-      throw new Error('data store backend must implement ' + expectedFn.name);
+      throw new Error(`data store backend must implement ${expectedFn.name}`);
     }
     exported[expectedFn.name] = backend[expectedFn.name];
   });
 
-  if (backend['configure']) {
-    return backend.configure(configOpts || {});
-  }
-
   return Promise.resolve();
 }
+
+function configure(configOpts) {
+  let backendPath;
+  if (configOpts.backendPath) {
+    backendPath = configOpts.backendPath;
+  } else if (configOpts.backendName) {
+    backendPath = `./backend-${configOpts.backendName}.js`;
+  }
+
+  if (!backendPath) {
+    return Promise.reject(new Error('dataStore must be configured with a backend'));
+  }
+
+  setBackendFromPath(backendPath);
+
+  if (backend.configure) {
+    return backend.configure(configOpts.backendOpts || {});
+  }
+  return Promise.resolve();
+}
+
+const exported = {
+  configure,
+};
+
+expectedFunctions.forEach((expectedFn) => {
+  exported[expectedFn.name] = () => {
+    return Promise.reject(new Error('A data store backend must be set'));
+  };
+});
 
 export default exported;
