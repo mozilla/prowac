@@ -7,7 +7,7 @@ function configure(opts) {
 
   opts.probes.forEach((probeOpts) => {
     if (!probeOpts.name) {
-      return promise.reject(new Error('Probe without name encountered'));
+      return Promise.reject(new Error('Probe without name encountered'));
     }
 
     const path = probeOpts.path || `./urlJobProcessorProbes/${probeOpts.name}.js`;

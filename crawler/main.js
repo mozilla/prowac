@@ -78,7 +78,7 @@ configPromises.push(urlJobProcessor.configure({
   probes: [
     {
       name: 'totalRecords',
-    }
+    },
   ],
 }));
 
