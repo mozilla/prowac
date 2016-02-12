@@ -48,7 +48,7 @@ function startProcessingJobs() {
   // TODO: Configurable number of urls processing concurrently
   queue.process('url', 50, (job, done) => {
     urlJobProcessor.processUrlJob(job.data).then((result) => {
-      return dataStore.updateWithCurrentCrawlResult(result).then(() => {
+      return dataStore.updateWithCurrentCrawlResult(job.data, result).then(() => {
         done(null, result);
       });
     }).catch((err) => {
@@ -75,7 +75,11 @@ configPromises.push(dataStore.configure({
 }));
 
 configPromises.push(urlJobProcessor.configure({
-
+  probes: [
+    {
+      name: 'totalRecords',
+    }
+  ],
 }));
 
 Promise.all(configPromises).then(() => {
