@@ -1,14 +1,6 @@
 const aggregatedInfo = [];
 const historicalData = {};
-let currentCrawlAggregatedData;
-
-function resetCurrentCrawlAggregatedData() {
-  currentCrawlAggregatedData = {
-    totalRecords: 0,
-  };
-}
-
-resetCurrentCrawlAggregatedData();
+let currentCrawlAggregatedData = {};
 
 function getHistoricalCrawlData(startIndex, count) {
   if (startIndex >= aggregatedInfo.length) {
@@ -46,13 +38,12 @@ function updateWithCurrentCrawlResult(url, data) {
       }
     }
   }
-  currentCrawlAggregatedData.totalRecords += 1;
   return Promise.resolve();
 }
 
 function finishCurrentCrawl() {
   aggregatedInfo.push(currentCrawlAggregatedData);
-  resetCurrentCrawlAggregatedData();
+  currentCrawlAggregatedData = {};
   return Promise.resolve();
 }
 
