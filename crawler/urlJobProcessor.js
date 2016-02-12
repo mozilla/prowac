@@ -2,10 +2,35 @@ import { default as fetch } from 'node-fetch';
 
 const probes = [];
 
-function configure(/* opts */) {
-  // TODO: Set up probes. They'll be specified somehow in opts and we
-  // should be able to load each probe individually. Maybe something
-  // like `require('./probe-' + probeName + '.js');`
+function configure(opts) {
+  const ret = [Promise.resolve()];
+
+  opts.probes.forEach((probeOpts) => {
+    if (!probeOpts.name) {
+      return promise.reject(new Error('Probe without name encountered'));
+    }
+
+    const path = probeOpts.path || `./urlJobProcessorProbes/${probeOpts.name}.js`;
+    const probeModule = require(path).default;
+
+    if (!probeModule.runProbe) {
+      return Promise.reject(new Error(`Probe ${probeOpts.name} does not implement runProbe`));
+    }
+
+    let p = Promise.resolve();
+    if (probeModule.configure) {
+      p = probeModule.configure(probeOpts.opts || {});
+    }
+
+    ret.push(p.then(() => {
+      probes.push({
+        name: probeOpts.name,
+        probeFn: probeModule.runProbe,
+      });
+    }));
+  });
+
+  return Promise.all(ret);
 }
 
 function fetchAllResources(url) {
@@ -24,13 +49,22 @@ function fetchAllResources(url) {
 }
 
 function processUrlJob(urlJob) {
-  console.log(`processUrlJob - ${urlJob}`);
+  console.log(`[${Date.now()}] start - ${urlJob}`);
+
+  const ret = {};
 
   return fetchAllResources(urlJob).then((pageResources) => {
     const promises = [];
-    probes.forEach((probeFunc) => {
-      promises.push(probeFunc.apply(null, pageResources));
+    probes.forEach((probe) => {
+      promises.push(probe.probeFn(pageResources).then((result) => {
+        ret[probe.name] = result;
+      }));
     });
+
+    return Promise.all(promises);
+  }).then(() => {
+    console.log(`[${Date.now()}] finish - ${urlJob} - ${JSON.stringify(ret)}`);
+    return ret;
   });
 }
 
