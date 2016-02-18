@@ -1,4 +1,6 @@
 import { default as fetch } from 'node-fetch';
+import { default as cheerio } from 'cheerio';
+import { default as urlModule } from 'url';
 
 const probes = [];
 
@@ -33,18 +35,37 @@ function configure(opts) {
   return Promise.all(ret);
 }
 
-function fetchAllResources(url) {
-  const ret = { html: '', js: '', sw: '' };
-  return fetch(`http://${url}`).then((response) => {
-    return response.text().then((htmlText) => {
-      ret.html += htmlText;
+function fetchAllResources(urlArg) {
+  const ret = { scripts: [] };
+  const urlStr = `http://${urlArg}`;
+  const url = urlModule.parse(urlStr);
+
+  return fetch(`${url.href}`, { headers: '' }).then((response) => {
+    ret.mainResponse = response;
+    return response.text();
+  }).then((htmlText) => {
+    ret.mainResponseHtml = htmlText;
+    const $ = cheerio.load(htmlText);
+    const promises = [];
+    $('script').each((index, elem) => {
+      if (!$(elem).attr('src')) {
+        ret.scripts.push($(elem).text());
+      } else {
+        let src = $(elem).attr('src');
+        if (src[0] === '/') {
+          src = `${url.protocol}//${url.host}${src}`;
+        }
+        promises.push(fetch(src).then((response) => {
+          return response.text();
+        }).then((jsText) => {
+          return ret.scripts.push(jsText);
+        }));
+      }
     });
-  }).then(() => {
-    // TODO: Fetch dependent resources (e.g. js, serviceWorker)
-    // and store them in the fields of `ret`
-    return Promise.resolve();
-  }).then(() => {
-    return ret;
+
+    return Promise.all(promises).then(() => {
+      return ret;
+    });
   });
 }
 
