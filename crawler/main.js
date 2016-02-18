@@ -79,6 +79,9 @@ configPromises.push(urlJobProcessor.configure({
     {
       name: 'totalRecords',
     },
+    {
+      name: 'sw',
+    },
   ],
 }));
 

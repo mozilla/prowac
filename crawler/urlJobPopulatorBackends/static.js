@@ -6,6 +6,7 @@ let list = [
   'eff.org',
   'mozilla.org',
   'mozilla.com',
+  'wadi-pwa.sloppy.zone'
 ];
 
 let currentIndex = 0;
