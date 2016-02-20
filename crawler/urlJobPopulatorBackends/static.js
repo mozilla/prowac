@@ -19,6 +19,7 @@ let list = [
   'cbsnews.com',
   'facebook.com',
   'pinterest.com',
+  'googlechrome.github.io/samples/web-application-manifest',
 ];
 
 let currentIndex = 0;
