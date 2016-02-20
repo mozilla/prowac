@@ -82,6 +82,9 @@ configPromises.push(urlJobProcessor.configure({
     {
       name: 'sw',
     },
+    {
+      name: 'manifest',
+    },
   ],
 }));
 

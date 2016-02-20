@@ -42,44 +42,43 @@ function configure(opts) {
 }
 
 function fetchAllResources(urlArg) {
-  const ret = { scripts: [] };
   const url = urlModule.parse(`http://${urlArg}`);
 
   // TODO: Pass user agent in headers
-  return fetch(`${url.href}`, { headers: '' }).then((response) => {
+  return fetch(`${url.href}`, { headers: '' }).then((mainResponse) => {
     // We pass along the response object that was returned after
-    // our fetch of the main page.
-    ret.mainResponse = response;
-    return response.text();
-  }).then((htmlText) => {
-    // We have to pass along the response body since it can no longer
-    // be retrieved from the response.
-    ret.mainResponseHtml = htmlText;
+    // our fetch of the main page. As an optimization, we don't
+    // clone the response here. Instead, we pass the body text
+    // in a separate arg.
+    const responses = [mainResponse];
+    return mainResponse.text().then((htmlText) => {
+      const $ = cheerio.load(htmlText);
+      const scripts = [];
+      const promises = [];
 
-    const $ = cheerio.load(htmlText);
-    const promises = [];
-    $('script').each((index, elem) => {
-      if (!$(elem).attr('src')) {
-        // For inline scripts, just append them to the array of scripts
-        // that we'll pass to the probes
-        ret.scripts.push($(elem).text());
-      } else {
-        // For scripts with a `src` attribute, we must fetch them here
-        let src = $(elem).attr('src');
-        if (src[0] === '/') {
-          // Deal with relative paths in `src` attributes
-          src = `${url.protocol}//${url.host}${src}`;
+      $('script').each((index, elem) => {
+        if (!$(elem).attr('src')) {
+          // For inline scripts, just append them to the array of scripts
+          // that we'll pass to the probes
+          scripts.push($(elem).text());
+        } else {
+          // For scripts with a `src` attribute, we must fetch them here
+          let src = $(elem).attr('src');
+          if (src[0] === '/') {
+            // Deal with relative paths in `src` attributes
+            src = `${url.protocol}//${url.host}${src}`;
+          }
+          promises.push(fetch(src).then((scriptResponse) => {
+            return scriptResponse.text();
+          }).then((jsText) => {
+            return scripts.push(jsText);
+          }));
         }
-        promises.push(fetch(src).then((response) => {
-          return response.text();
-        }).then((jsText) => {
-          return ret.scripts.push(jsText);
-        }));
-      }
-    });
+      });
 
-    return Promise.all(promises).then(() => {
-      return ret;
+      return Promise.all(promises).then(() => {
+        return [responses, $, htmlText, scripts];
+      });
     });
   });
 }
@@ -91,8 +90,9 @@ function processUrlJob(urlJob) {
 
   return fetchAllResources(urlJob).then((pageResources) => {
     const promises = [];
+
     probes.forEach((probe) => {
-      promises.push(probe.probeFn(pageResources).then((result) => {
+      promises.push(probe.probeFn.apply(null, pageResources).then((result) => {
         ret[probe.name] = result;
       }));
     });

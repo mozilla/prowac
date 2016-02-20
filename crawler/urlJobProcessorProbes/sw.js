@@ -1,8 +1,8 @@
 const swRegexp = /\.serviceWorker\.register/;
 
-function runProbe(data) {
+function runProbe(responses, $, htmlText, scripts) {
   return new Promise((resolve, reject) => {
-    data.scripts.forEach((script) => {
+    scripts.forEach((script) => {
       if (swRegexp.test(script)) {
         return resolve(true);
       }
