@@ -57,18 +57,15 @@ function fetchAllResources(urlArg) {
       const promises = [];
 
       $('script').each((index, elem) => {
-        if (!$(elem).attr('src')) {
+        const src = $(elem).attr('src');
+        if (!src) {
           // For inline scripts, just append them to the array of scripts
           // that we'll pass to the probes
           scripts.push($(elem).text());
         } else {
           // For scripts with a `src` attribute, we must fetch them here
-          let src = $(elem).attr('src');
-          if (src[0] === '/') {
-            // Deal with relative paths in `src` attributes
-            src = `${url.protocol}//${url.host}${src}`;
-          }
-          promises.push(fetch(src).then((scriptResponse) => {
+          const resolvedSrc = urlModule.resolve(url.href, src);
+          promises.push(fetch(resolvedSrc).then((scriptResponse) => {
             return scriptResponse.text();
           }).then((jsText) => {
             return scripts.push(jsText);
@@ -89,12 +86,10 @@ function processUrlJob(urlJob) {
   const ret = {};
 
   return fetchAllResources(urlJob).then((pageResources) => {
-    const promises = [];
-
-    probes.forEach((probe) => {
-      promises.push(probe.probeFn.apply(null, pageResources).then((result) => {
+    const promises = probes.map((probe) => {
+      return probe.probeFn.apply(null, pageResources).then((result) => {
         ret[probe.name] = result;
-      }));
+      });
     });
 
     return Promise.all(promises);
