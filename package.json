@@ -28,8 +28,8 @@
       "build:dashboard:static": "shjs dist/scripts/build-dashboard-static.js",
       "build:datastore": "babel dataStore -d dist/dataStore",
     "start": "npm-run-all --parallel start:*",
-      "start:crawler": "node dist/crawler/main.js",
-      "start:dashboard": "echo The dashboard is not yet implemented",
+    "start:crawler": "node dist/crawler/main.js",
+    "start:dashboard": "echo The dashboard is not yet implemented",
     "watch:crawler": "npm run build:crawler -- --watch",
     "watch:dashboard:js": "npm run build:dashboard:js -- --watch",
     "watch:dashboard:static": "npm run build:dashboard:static -- --watch",
@@ -40,9 +40,10 @@
   "homepage": "https://github.com/mozilla/prowac",
   "dependencies": {
     "express": "^4.13.4",
+    "jszip": "^2.5.0",
     "kue": "^0.10.5",
-    "npm-run-all": "^1.5.1",
     "node-fetch": "^1.3.3",
+    "npm-run-all": "^1.5.1",
     "redis": "^2.4.2"
   },
   "devDependencies": {
@@ -54,6 +55,7 @@
     "eslint": "^1.10.3",
     "eslint-config-airbnb": "^4.0.0",
     "mocha": "^2.4.5",
+    "portfinder": "^1.0.1",
     "shelljs": "^0.5.3"
   }
 }

@@ -110,10 +110,30 @@ function configure(opts) {
   });
 }
 
+function saveUrls(urls) {
+  const promises = [];
+  client.del('sources', addPromise(promises));
+  client.sadd('sources', urls, addPromise(promises));
+  return Promise.all(promises);
+}
+
+function getUrls() {
+  return new Promise((resolve, reject) => {
+    client.smembers('sources', (err, sources) => {
+      if (err) {
+        return reject(err);
+      }
+      resolve(sources);
+    });
+  });
+}
+
 export default {
   getHistoricalCrawlData,
   getHistoricalURLData,
   updateWithCurrentCrawlResult,
   finishCurrentCrawl,
+  saveUrls,
+  getUrls,
   configure,
 };

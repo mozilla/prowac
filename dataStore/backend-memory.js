@@ -1,5 +1,6 @@
 const aggregatedInfo = [];
 const historicalData = {};
+let sourceUrls;
 let currentCrawlAggregatedData;
 
 function resetCurrentCrawlAggregatedData() {
@@ -56,9 +57,20 @@ function finishCurrentCrawl() {
   return Promise.resolve();
 }
 
+function saveUrls(urls) {
+  sourceUrls = urls;
+  return Promise.resolve();
+}
+
+function getUrls() {
+  return Promise.resolve(sourceUrls);
+}
+
 export default {
   getHistoricalCrawlData,
   getHistoricalURLData,
   updateWithCurrentCrawlResult,
   finishCurrentCrawl,
+  saveUrls,
+  getUrls,
 };

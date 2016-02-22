@@ -214,6 +214,17 @@ function doTests() {
       });
     });
   });
+
+  context('saveAndGetUrls', () => {
+    it('should save and then get same array', () => {
+      const testArray = ['a', 'b', 'c'];
+      return dataStore.saveUrls(testArray)
+      .then(dataStore.getUrls)
+      .then(received => {
+        assert.sameMembers(testArray, received);
+      });
+    });
+  });
 }
 
 describe('DB with memory backend', () => {
