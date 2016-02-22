@@ -23,13 +23,14 @@ This section is in progress.
 - __dataStore.js__ - This module is responsible for providing an API that allows data to be stored from the output of processing URL jobs, and that allows data to be retrieved by the dashboard. This module loads a backend and delegates data storage and retrieval to the backend.
 - __backend-*.js__ - These are the backends available for the main data store module to load. Each of these files implements the same interface using a different storage technology. Examples include storing data in memory and storing data in a redis DB.
 
-## npm scripts
+# Building and Running
 
-## Building
+`npm install` in the source directory should get you all the npm modules you need to get started.
 
-## Running
+`npm run build` will transpile/copy all the necessary files into the dist/ directory.
 
-Install Redis
+`npm start` will start both the crawler and the dashboard, using appropriate defaults.
 
-Configure with env vars
-`REDIS_URL` environment variable (defaults to "redis://localhost:6379") 
+`npm test` will run the project test suite.
+
+__Note:__ you'll want to install redis and start the redis server before you run the crawler or the dashboard with their default settings. The crawler uses [kue](https://github.com/Automattic/kue) for keeping track of url job tasks and kue requires a redis db to be up and running. The default backend for the `dataStore` module is the redis backend, which obviously also requires a redis server.
