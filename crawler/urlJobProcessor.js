@@ -74,7 +74,7 @@ function fetchAllResources(urlArg) {
       });
 
       return Promise.all(promises).then(() => {
-        return [responses, $, htmlText, scripts];
+        return { responses, dom: $, htmlText, scripts };
       });
     });
   });
@@ -87,7 +87,7 @@ function processUrlJob(urlJob) {
 
   return fetchAllResources(urlJob).then((pageResources) => {
     const promises = probes.map((probe) => {
-      return probe.probeFn.apply(null, pageResources).then((result) => {
+      return probe.probeFn.call(null, pageResources).then((result) => {
         ret[probe.name] = result;
       });
     });

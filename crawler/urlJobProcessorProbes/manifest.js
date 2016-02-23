@@ -1,4 +1,6 @@
-function runProbe(responses, $, htmlText, scripts) {
+function runProbe(siteData) {
+  const $ = siteData.dom;
+
   let ret = false;
 
   $('link[rel="manifest"]').each((index, elem) => {

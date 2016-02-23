@@ -4,7 +4,9 @@ const regRegexp = /\.register/;
 let swMatched = false;
 let regMatched = false;
 
-function runProbe(responses, $, htmlText, scripts) {
+function runProbe(pageResources) {
+  const scripts = pageResources.scripts;
+
   return new Promise((resolve, reject) => {
     scripts.forEach((script) => {
       if (swRegexp.test(script)) {
