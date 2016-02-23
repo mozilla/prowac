@@ -77,9 +77,6 @@ configPromises.push(dataStore.configure({
 configPromises.push(urlJobProcessor.configure({
   probes: [
     {
-      name: 'totalRecords',
-    },
-    {
       name: 'sw',
     },
     {
