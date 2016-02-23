@@ -1,5 +1,5 @@
 import { assert } from 'chai';
-import { default as alexa } from '../crawler/alexa.js';
+import { test as alexa } from '../crawler/urlJobPopulatorBackends/alexa.js';
 import { default as portfinder } from 'portfinder';
 import { default as JSZip } from 'jszip';
 import { default as http } from 'http';

@@ -34,14 +34,32 @@ function populateJobs() {
 }
 
 function addJobs(urls) {
-  urls.forEach((url) => {
+  // FIXME: This used to be a straight `urls.forEach` but with 1M+ urls that
+  // was causing kue to run out of memory. This solution doesn't work super
+  // well if the urlJobPopulator backend calls its progress callback very
+  // frequently (e.g. once per url). We should take another look at this.
+
+  let index = 0;
+  function next() {
+    if (index === urls.length) {
+      return;
+    }
+
+    const url = urls[index];
+    index++;
+
     // TODO: Configurable retry attempts
     queue.create('url', url).attempts(5).backoff(true).save((err) => {
       if (err) {
         console.error(`FAILED to add job: ${url}`);
+        return;
       }
+
+      next();
     });
-  });
+  }
+
+  next();
 }
 
 function startProcessingJobs() {
@@ -62,7 +80,7 @@ function startProcessingJobs() {
 const configPromises = [];
 
 configPromises.push(urlJobPopulator.configure({
-  backendName: 'static',
+  backendName: 'alexa',
   progressCallback: addJobs,
   finishedCallback: () => { addingNewJobs = false; },
 }));
