@@ -84,18 +84,24 @@ function processUrlJob(urlJob) {
   console.log(`[${Date.now()}] start - ${urlJob}`);
 
   const ret = {};
+  let index = 0;
 
   return fetchAllResources(urlJob).then((pageResources) => {
-    const promises = probes.map((probe) => {
-      return probe.probeFn.call(null, pageResources).then((result) => {
-        ret[probe.name] = result;
-      });
-    });
+    function next() {
+      if (index === probes.length) {
+        console.log(`[${Date.now()}] finish - ${urlJob} - ${JSON.stringify(ret)}`);
+        return Promise.resolve(ret);
+      }
 
-    return Promise.all(promises);
-  }).then(() => {
-    console.log(`[${Date.now()}] finish - ${urlJob} - ${JSON.stringify(ret)}`);
-    return ret;
+      const probe = probes[index];
+      return probe.probeFn(pageResources).then((result) => {
+        ret[probe.name] = result;
+        index++;
+        return next();
+      });
+    }
+
+    return next();
   });
 }
 
