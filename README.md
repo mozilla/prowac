@@ -34,3 +34,5 @@ This section is in progress.
 `npm test` will run the project test suite.
 
 __Note:__ you'll want to install redis and start the redis server before you run the crawler or the dashboard with their default settings. The crawler uses [kue](https://github.com/Automattic/kue) for keeping track of url job tasks and kue requires a redis db to be up and running. The default backend for the `dataStore` module is the redis backend, which obviously also requires a redis server.
+
+`./node_modules/kue/bin/kue-dashboard` will start a server that you can connect to in a browser to see the status of any current url jobs. If you're using alternative redis settings, you'll have to pass those along to `kue-dashboard` on the command line.
