@@ -5,8 +5,6 @@ const expectedFunctions = [
   { name: 'getHistoricalURLData' },
   { name: 'updateWithCurrentCrawlResult' },
   { name: 'finishCurrentCrawl' },
-  { name: 'saveUrls' },
-  { name: 'getUrls' },
 ];
 
 let backend;
