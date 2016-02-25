@@ -2,106 +2,122 @@ import { default as fetch } from 'node-fetch';
 import { default as cheerio } from 'cheerio';
 import { default as urlModule } from 'url';
 
-const probes = [];
-
-function configure(opts) {
-  if (!opts.probes || !opts.probes.length) {
-    return Promise.reject(new Error('At least one urlJobProcessor probe must be specified'));
-  }
-
-  const ret = [Promise.resolve()];
-
-  opts.probes.forEach((probeOpts) => {
-    if (!probeOpts.name) {
-      return Promise.reject(new Error('Probe without name encountered'));
-    }
-
-    // We allow the probe to be specified by name or by path. If specified by name,
-    // we expect it to be a known subdir.
-    const path = probeOpts.path || `./urlJobProcessorProbes/${probeOpts.name}.js`;
-    const probeModule = require(path).default;
-
-    if (!probeModule.runProbe) {
-      return Promise.reject(new Error(`Probe ${probeOpts.name} does not implement runProbe`));
-    }
-
-    let p = Promise.resolve();
-    if (probeModule.configure) {
-      p = probeModule.configure(probeOpts.opts || {});
-    }
-
-    ret.push(p.then(() => {
-      probes.push({
-        name: probeOpts.name,
-        probeFn: probeModule.runProbe,
-      });
-    }));
-  });
-
-  return Promise.all(ret);
+function configure() {
+  // TODO: Add any necessary configuration here
+  return Promise.resolve();
 }
 
-function fetchAllResources(urlArg) {
-  const url = urlModule.parse(`http://${urlArg}`);
+function processUrlJob(urlStr) {
+  console.log(`[${Date.now()}] start - ${urlStr}`);
+
+  const httpUrl = urlModule.parse(`http://${urlStr}`);
+  const httpsUrl = urlModule.parse(`https://${urlStr}`);
+  const ret = {
+    hasHTTPS: false,
+    hasHTTPSRedirect: false,
+    hasHSTS: false,
+    hasServiceWorker: false,
+    hasManifest: false,
+  };
 
   // TODO: Pass user agent in headers
-  return fetch(`${url.href}`, { headers: '' }).then((mainResponse) => {
-    // We pass along the response object that was returned after
-    // our fetch of the main page. As an optimization, we don't
-    // clone the response here. Instead, we pass the body text
-    // in a separate arg.
-    const responses = [mainResponse];
-    return mainResponse.text().then((htmlText) => {
-      const $ = cheerio.load(htmlText);
-      const scripts = [];
-      const promises = [];
+  const fetchParams = {
+    headers: '',
+  };
 
-      $('script').each((index, elem) => {
-        const src = $(elem).attr('src');
-        if (!src) {
-          // For inline scripts, just append them to the array of scripts
-          // that we'll pass to the probes
-          scripts.push($(elem).text());
-        } else {
-          // For scripts with a `src` attribute, we must fetch them here
-          const resolvedSrc = urlModule.resolve(url.href, src);
-          promises.push(fetch(resolvedSrc).then((scriptResponse) => {
-            return scriptResponse.text();
-          }).then((jsText) => {
-            return scripts.push(jsText);
-          }));
+  return fetch(httpUrl.href, fetchParams).catch(() => {
+    // Ignore errors trying to fetch HTTP
+    return null;
+  }).then((httpResponse) => {
+    if (httpResponse) {
+      // Check the HTTP response for a W3C App Manifest
+      return httpResponse.text().then((htmlText) => {
+        const $ = cheerio.load(htmlText);
+        $('link[rel="manifest"]').each(() => {
+          ret.hasManifest = true;
+          return false;
+        });
+      }).catch((err) => {
+        // Log and ignore issues when parsing HTTP response
+        console.error(`Unexpected error parsing HTTP response: ${err}`);
+      }).then(() => {
+        // Check whether we were redirected to HTTPS
+        const responseUrl = urlModule.parse(httpResponse.url);
+        if (responseUrl.protocol === 'https:') {
+          ret.hasHTTPSRedirect = true;
+          return httpResponse;
         }
-      });
 
-      return Promise.all(promises).then(() => {
-        return { responses, dom: $, htmlText, scripts };
-      });
-    });
-  });
-}
-
-function processUrlJob(urlJob) {
-  console.log(`[${Date.now()}] start - ${urlJob}`);
-
-  const ret = {};
-  let index = 0;
-
-  return fetchAllResources(urlJob).then((pageResources) => {
-    function next() {
-      if (index === probes.length) {
-        console.log(`[${Date.now()}] finish - ${urlJob} - ${JSON.stringify(ret)}`);
-        return Promise.resolve(ret);
-      }
-
-      const probe = probes[index];
-      return probe.probeFn(pageResources).then((result) => {
-        ret[probe.name] = result;
-        index++;
-        return next();
+        return null;
       });
     }
+  }).then((httpsResponse) => {
+    // If we already fetched over HTTPS thanks to an HTTP redirect
+    // just keep the previous response. If not, we have to fetch over
+    // HTTPS now.
+    if (!httpsResponse) {
+      return fetch(httpsUrl.href, fetchParams);
+    }
+    return httpsResponse;
+  }).then((httpsResponse) => {
+    ret.hasHTTPS = true;
+    return httpsResponse.text();
+  }).then((htmlText) => {
+    const $ = cheerio.load(htmlText);
 
-    return next();
+    // Check the HTTPS response for a W3C App Manifest
+    $('link[rel="manifest"]').each(() => {
+      ret.hasManifest = true;
+      return false;
+    });
+
+    const scripts = [];
+    const fetchPromises = [];
+    $('script').each((index, elem) => {
+      const src = $(elem).attr('src');
+      if (!src) {
+        scripts.push($(elem).text());
+      } else {
+        const resolvedSrc = urlModule.resolve(httpsUrl.href, src);
+        fetchPromises.push(fetch(resolvedSrc).catch(() => {
+          // Ignore errors trying to fetch individual scripts
+        }).then((scriptResponse) => {
+          return scriptResponse.text();
+        }).then((jsText) => {
+          return scripts.push(jsText);
+        }));
+      }
+    });
+
+    return Promise.all(fetchPromises).then(() => scripts);
+  }).then((scripts) => {
+    const swRegexp = /\.serviceWorker/;
+    const regRegexp = /\.register/;
+
+    let swMatched = false;
+    let regMatched = false;
+
+    scripts.forEach((script) => {
+      if (swRegexp.test(script)) {
+        swMatched = true;
+        if (regMatched) {
+          ret.hasSW = true;
+        }
+      }
+
+      if (regRegexp.test(script)) {
+        regMatched = true;
+        if (swMatched) {
+          ret.hasSW = true;
+        }
+      }
+    });
+  }).catch((err) => {
+    // Ignore errors. Specifically, errors trying to fetch over HTTPS will
+    // end up in this block.
+    console.log(`${urlStr} early exit thanks to ${err}`);
+  }).then(() => {
+    console.log(`[${Date.now()}] finish - ${urlStr} - ${JSON.stringify(ret)}`);
   });
 }
 

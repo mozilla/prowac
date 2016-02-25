@@ -93,14 +93,7 @@ configPromises.push(dataStore.configure({
 }));
 
 configPromises.push(urlJobProcessor.configure({
-  probes: [
-    {
-      name: 'sw',
-    },
-    {
-      name: 'manifest',
-    },
-  ],
+  // TODO: Something here
 }));
 
 Promise.all(configPromises).then(() => {
