@@ -95,7 +95,7 @@ function processUrlJob(urlStr) {
     const regStr = '.register';
 
     scripts.forEach((script) => {
-      if (script.indexOf(swStr) !== -1 && script.indexOf(regStr)) {
+      if (script.indexOf(swStr) !== -1 && script.indexOf(regStr) !== -1) {
         ret.hasSW = true;
       }
     });
