@@ -75,8 +75,8 @@ function startProcessingJobs() {
   });
 }
 
-// TODO Configure from a config file
-
+// TODO: Configure from a config file (dataStore config should match
+// the config that dashboard uses)
 const configPromises = [];
 
 configPromises.push(urlJobPopulator.configure({
