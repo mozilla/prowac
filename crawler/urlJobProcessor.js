@@ -94,22 +94,9 @@ function processUrlJob(urlStr) {
     const swStr = '.serviceWorker';
     const regStr = '.register';
 
-    let swMatched = false;
-    let regMatched = false;
-
     scripts.forEach((script) => {
-      if (script.indexOf(swStr) !== -1) {
-        swMatched = true;
-        if (regMatched) {
-          ret.hasSW = true;
-        }
-      }
-
-      if (script.indexOf(regStr) !== -1) {
-        regMatched = true;
-        if (swMatched) {
-          ret.hasSW = true;
-        }
+      if (script.indexOf(swStr) !== -1 && script.indexOf(regStr)) {
+        ret.hasSW = true;
       }
     });
   }).catch((err) => {
