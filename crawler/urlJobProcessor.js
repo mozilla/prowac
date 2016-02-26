@@ -118,6 +118,7 @@ function processUrlJob(urlStr) {
     console.log(`${urlStr} early exit thanks to ${err}`);
   }).then(() => {
     console.log(`[${Date.now()}] finish - ${urlStr} - ${JSON.stringify(ret)}`);
+    return ret;
   });
 }
 
