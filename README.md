@@ -11,8 +11,7 @@ The project is separated into 3 pieces: Crawler, Dashboard, Data Store. In the s
 - __main.js__ - This is the source of the main driver for the crawler. It uses the `urlJobPopulator` module to populate its list of jobs and uses the `urlJobProcessor` module to process each of those jobs. It stores the output of each job using the `dataStore` module.
 - __urlJobPopulator.js__ - This module is responsible for supplying the website URLs that the crawler should examine. This module selects and loads a backend from the urlJobPopulatorBackends/ directory and delegates its work to the backend.
 - __urlJobPopulatorBackends/__ - This directory contains the backends available for populating URL jobs. The most important is alexa.js which fetches the Alexa top 1 million sites list and populates the url job list from that data.
-- __urlJobProcessor.js__ - This module is responsible for loading the site probes and running them on each URL job. The results get passed to the caller.
-- __urlJobProcessorProbes/__ - This directory contains the probes available for analyzing sites. Each probe checks for a technology that we're interested in. See the top-level description of the project for examples of what probes might check for.
+- __urlJobProcessor.js__ - This module is responsible for fetching site data and running probes on each URL job. The results get passed to the caller. See the top-level description of the project for examples of what probes might check for.
 
 ## Dashboard - top/dashboard
 
