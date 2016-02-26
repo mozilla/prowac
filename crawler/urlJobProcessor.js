@@ -91,21 +91,21 @@ function processUrlJob(urlStr) {
 
     return Promise.all(fetchPromises).then(() => scripts);
   }).then((scripts) => {
-    const swRegexp = /\.serviceWorker/;
-    const regRegexp = /\.register/;
+    const swStr = '.serviceWorker';
+    const regStr = '.register';
 
     let swMatched = false;
     let regMatched = false;
 
     scripts.forEach((script) => {
-      if (swRegexp.test(script)) {
+      if (script.indexOf(swStr) !== -1) {
         swMatched = true;
         if (regMatched) {
           ret.hasSW = true;
         }
       }
 
-      if (regRegexp.test(script)) {
+      if (script.indexOf(regStr) !== -1) {
         regMatched = true;
         if (swMatched) {
           ret.hasSW = true;
