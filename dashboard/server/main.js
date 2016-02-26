@@ -22,6 +22,7 @@ dataStore.configure({
 
 function getData(req, res) {
   console.log(`getData, req=${req}`);
-  const data = dataStore.getHistoricalURLData('google.com', 10);
-  res.send(JSON.stringify(data));
+  dataStore.getHistoricalURLData('google.com', 10).then((data) => {
+    res.send(JSON.stringify(data));
+  });
 }
