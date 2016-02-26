@@ -23,6 +23,18 @@
   <script type="text/javascript" src="index.js" async></script>
 </head>
 <body>
-  Hello?
+  <form>
+    <label>Url: <input id='url-input' type='text'></label>
+    <label>Count: <input id='url-count-input' type='number'></label>
+    <button id='historical-url-button'>Get URL data</button>
+  </form>
+
+  <form>
+    <label>Start: <input id='aggregate-start-input' type='number'></label>
+    <label>Count: <input id='aggregate-count-input' type='number'></label>
+    <button id='aggregate-button'>Get aggregate data</button>
+  </form>
+
+  <output id='out'></output>
 </body>
 </html>

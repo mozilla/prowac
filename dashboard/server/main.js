@@ -13,16 +13,30 @@ dataStore.configure({
   },
 }).then(() => {
   const app = express();
-  app.get('/get-data', getData);
+  app.get('/historical-url', getUrl);
+  app.get('/aggregate', getAggregate);
   app.use(express.static('dist/dashboard/static'));
   app.listen(port, () => {
     console.log(`Dashboard running on port ${port}`);
   });
 });
 
-function getData(req, res) {
-  console.log(`getData, req=${req}`);
-  dataStore.getHistoricalURLData('google.com', 10).then((data) => {
+function getAggregate(req, res) {
+  const start = req.query.start;
+  const count = req.query.count;
+
+  console.log(`getAggregate ${start} ${count}`);
+  dataStore.getHistoricalCrawlData(start, count).then((data) => {
+    res.send(JSON.stringify(data));
+  });
+}
+
+function getUrl(req, res) {
+  const url = req.query.url;
+  const count = req.query.count;
+
+  console.log(`getUrl ${count} ${url}`);
+  dataStore.getHistoricalURLData('google.com', count).then((data) => {
     res.send(JSON.stringify(data));
   });
 }
