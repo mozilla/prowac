@@ -6,6 +6,20 @@ let list = [
   'eff.org',
   'mozilla.org',
   'mozilla.com',
+  'wadi-pwa.sloppy.zone',
+  'stubhub.com',
+  'houstonchronicle.com',
+  'caron.com',
+  'mysa.com',
+  'expressnews.com',
+  'younow.com',
+  'weather.com',
+  'hubspot.com',
+  'nestle.com',
+  'cbsnews.com',
+  'facebook.com',
+  'pinterest.com',
+  'googlechrome.github.io/samples/web-application-manifest',
 ];
 
 let currentIndex = 0;

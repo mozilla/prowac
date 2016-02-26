@@ -4,6 +4,7 @@ import { default as dataStore } from '../dist/dataStore/dataStore.js';
 function addCrawl() {
   return dataStore.updateWithCurrentCrawlResult('url1.com', {
     timestamp: new Date(),
+    totalRecords: true,
     testProbe1: false,
     testProbe2: false,
     testProbe3: true,
@@ -11,6 +12,7 @@ function addCrawl() {
   }).then(() => {
     return dataStore.updateWithCurrentCrawlResult('url2.com', {
       timestamp: new Date(),
+      totalRecords: true,
       testProbe1: false,
       testProbe2: true,
       testProbe3: true,
@@ -19,6 +21,7 @@ function addCrawl() {
   }).then(() => {
     return dataStore.updateWithCurrentCrawlResult('url3.com', {
       timestamp: new Date(),
+      totalRecords: true,
       testProbe1: true,
       testProbe2: true,
       testProbe3: true,
