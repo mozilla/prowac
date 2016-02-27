@@ -12,7 +12,7 @@ queue.on('error', (err) => {
   console.error(`UNCAUGHT ERROR: ${err}`);
 });
 
-process.on('SIGINT', () => {
+function shutdown() {
   queue.shutdown(5000, (err) => {
     console.log('URL job queue shutdown initiated');
     if (err) {
@@ -21,6 +21,41 @@ process.on('SIGINT', () => {
     }
     console.log('URL job queue shutdown complete');
     return process.exit(0);
+  });
+}
+
+process.on('SIGINT', () => {
+  shutdown();
+});
+
+queue.on('job complete', () => {
+  if (addingNewJobs) {
+    return;
+  }
+
+  const p1 = new Promise((resolve, reject) => {
+    queue.inactiveCount((err, total) => {
+      if (err) {
+        return reject(err);
+      }
+      resolve(total);
+    });
+  });
+
+  const p2 = new Promise((resolve, reject) => {
+    queue.activeCount((err, total) => {
+      if (err) {
+        return reject(err);
+      }
+      resolve(total);
+    });
+  });
+
+  Promise.all([p1, p2]).then((totals) => {
+    if (totals[0] === 0 && totals[1] === 0) {
+      console.log('FINISHED CRAWL');
+      dataStore.finishCurrentCrawl().then(shutdown);
+    }
   });
 });
 
@@ -66,7 +101,7 @@ function startProcessingJobs() {
   // TODO: Configurable number of urls processing concurrently
   queue.process('url', 50, (job, done) => {
     urlJobProcessor.processUrlJob(job.data).then((result) => {
-      return dataStore.updateWithCurrentCrawlResult(result).then(() => {
+      return dataStore.updateWithCurrentCrawlResult(job.data, result).then(() => {
         done(null, result);
       });
     }).catch((err) => {
@@ -93,7 +128,7 @@ configPromises.push(dataStore.configure({
 }));
 
 configPromises.push(urlJobProcessor.configure({
-
+  // TODO: Something here
 }));
 
 Promise.all(configPromises).then(() => {

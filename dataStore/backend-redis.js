@@ -58,7 +58,6 @@ function updateWithCurrentCrawlResult(url, data) {
       client.hincrby('current-crawl-aggregated-data', i, 1, addPromise(promises));
     }
   }
-  client.hincrby('current-crawl-aggregated-data', 'totalRecords', 1, addPromise(promises));
 
   return Promise.all(promises);
 }
