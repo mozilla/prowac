@@ -8,6 +8,8 @@ const aggregateButton = document.querySelector('#aggregate-button');
 
 const output = document.querySelector('#out');
 
+const lastJobsOutput = document.querySelector('#lastJobs');
+
 urlButton.addEventListener('click', (event) => {
   event.preventDefault();
 
@@ -33,3 +35,11 @@ aggregateButton.addEventListener('click', (event) => {
     output.textContent = JSON.stringify(json);
   });
 });
+
+window.setInterval(() => {
+  fetch(`/recent`).then((response) => {
+    return response.json();
+  }).then((json) => {
+    lastJobs.textContent = JSON.stringify(json);
+  });
+}, 5000);

@@ -1,3 +1,11 @@
 form {
   display: block;
 }
+
+output {
+  display: block;
+}
+
+.output-box {
+  margin-top: 30px;
+}
