@@ -96,7 +96,7 @@ function processUrlJob(urlStr) {
 
     scripts.forEach((script) => {
       if (script.indexOf(swStr) !== -1 && script.indexOf(regStr) !== -1) {
-        ret.hasSW = true;
+        ret.hasServiceWorker = true;
       }
     });
   }).catch((err) => {
