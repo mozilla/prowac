@@ -18,6 +18,7 @@ function processUrlJob(urlStr) {
     hasHSTS: false,
     hasServiceWorker: false,
     hasManifest: false,
+    hasPushSubscription: false,
   };
 
   // TODO: Pass user agent in headers
@@ -93,10 +94,15 @@ function processUrlJob(urlStr) {
   }).then((scripts) => {
     const swStr = '.serviceWorker';
     const regStr = '.register';
+    const pushStr = 'pushManager.subscribe';
+
 
     scripts.forEach((script) => {
       if (script.indexOf(swStr) !== -1 && script.indexOf(regStr) !== -1) {
-        ret.hasSW = true;
+        ret.hasServiceWorker = true;
+      }
+      if (script.indexOf(pushStr) !== -1) {
+        ret.hasPushSubscription = true;
       }
     });
   }).catch((err) => {
