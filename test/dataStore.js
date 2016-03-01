@@ -238,7 +238,5 @@ describe('DB with redis backend', () => {
     });
   });
 
-  after(() => dataStore.flush());
-
   doTests();
 });

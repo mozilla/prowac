@@ -42,15 +42,8 @@ function configure(configOpts) {
   return Promise.resolve();
 }
 
-function flush() {
-  if (backend.flush) {
-    backend.flush();
-  }
-}
-
 const exported = {
   configure,
-  flush,
 };
 
 expectedFunctions.forEach((expectedFn) => {

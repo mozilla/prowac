@@ -109,19 +109,10 @@ function configure(opts) {
   });
 }
 
-function flush() {
-  return new Promise(resolve => {
-    client.flushdb(() => {
-      resolve();
-    });
-  });
-}
-
 export default {
   getHistoricalCrawlData,
   getHistoricalURLData,
   updateWithCurrentCrawlResult,
   finishCurrentCrawl,
   configure,
-  flush,
 };
