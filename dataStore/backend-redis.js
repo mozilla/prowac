@@ -111,9 +111,7 @@ function configure(opts) {
 
 function flush() {
   return new Promise(resolve => {
-    client.flushdb(() => {
-      resolve();
-    });
+    client.flushdb(resolve);
   });
 }
 
