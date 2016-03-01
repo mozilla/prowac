@@ -12,6 +12,7 @@ describe('processUrlJob for a site', () => {
       hasHTTPSRedirect: false,
       hasManifest: false,
       hasServiceWorker: false,
+      hasPushSubscription: false,
     };
   });
 
@@ -123,6 +124,28 @@ describe('processUrlJob for a site', () => {
         assert.ok(site.isDone());
         probes.hasHTTPS = true;
         probes.hasServiceWorker = true;
+        assert.deepEqual(ret, probes);
+      });
+    });
+  });
+
+  context('with push subscription', () => {
+    it('should pass hasPushSubscription', () => {
+      nock('http://localhost')
+      .get('/')
+      .reply(200, '<html></html>');
+
+      const site = nock('http://localhost:443')
+      .get('/')
+      .reply(200, '<html><script src="https://localhost/index.js"></html>')
+      .get('/index.js')
+      .reply(200, 'registration.pushManager.subscribe();');
+
+      return urlJobProcessor.processUrlJob('localhost')
+      .then(ret => {
+        assert.ok(site.isDone());
+        probes.hasHTTPS = true;
+        probes.hasPushSubscription = true;
         assert.deepEqual(ret, probes);
       });
     });
