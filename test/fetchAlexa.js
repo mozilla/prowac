@@ -34,7 +34,7 @@ describe('with a prepared zip file', () => {
 
   function serveZip(port) {
     const zip = new JSZip();
-    zip.file('top1m.csv', '\n1,google.com\n2,facebook.com\n3,youtube.com\n4,baidu.com');
+    zip.file('top-1m.csv', '1,google.com\n2,facebook.com\n3,youtube.com\n4,baidu.com');
     const server = http.createServer((req, res) => {
       res.writeHead(200, { 'Content-Type': 'application/zip' });
       res.end(zip.generate({ type: 'nodebuffer' }));

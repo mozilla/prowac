@@ -9,7 +9,7 @@ function getTop1M(zipURL) {
   console.log(`fetch ${zipURL}`);
   return fetch(zipURL)
   .then((response) => {
-    console.log(`got response: ${response}`);
+    console.log(`got response, status: ${response.status}`);
     return response.body;
   })
   .then((stream) => {
@@ -20,12 +20,15 @@ function getTop1M(zipURL) {
       stream.on('readable', function onReadable() {
         let chunk = stream.read();
         if (null === chunk) {
-          stream.removeListener('readable', onReadable);
-          return resolve(ret);
+          return stream.removeListener('readable', onReadable);
         }
 
         length += chunk.length;
         ret = Buffer.concat([ret, chunk], length);
+      });
+      stream.on('end', function onEnd() {
+        stream.removeListener('end', onEnd);
+        return resolve(ret);
       });
     });
   })
