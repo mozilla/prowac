@@ -34,11 +34,10 @@ describe('with a prepared zip file', () => {
 
   function serveZip(port) {
     const zip = new JSZip();
-    zip.generate({ type: 'blob' });
-    zip.file('top1m.csv', '\n1,google.com\n2,facebook.com\n3,youtube.com\n4,baidu.com');
+    zip.file('top-1m.csv', '1,google.com\n2,facebook.com\n3,youtube.com\n4,baidu.com');
     const server = http.createServer((req, res) => {
       res.writeHead(200, { 'Content-Type': 'application/zip' });
-      res.end(zip);
+      res.end(zip.generate({ type: 'nodebuffer' }));
       server.close();
     }).listen(port);
 
@@ -59,7 +58,7 @@ describe('with a prepared zip file', () => {
 
   context('getTop1M', () => {
     it('should return a csv with 4 lines', () => {
-      getPort()
+      return getPort()
       .then(port => serveZip(port)
         .then(() => alexa.getTop1M(`http://localhost:${port}`)))
       .then(csv => {
