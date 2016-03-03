@@ -2,9 +2,20 @@ import { default as urlJobPopulator } from './urlJobPopulator.js';
 import { default as urlJobProcessor } from './urlJobProcessor.js';
 import { default as dataStore } from '../dataStore/dataStore.js';
 import { default as kue } from 'kue';
+import { default as cli } from 'cli.args';
+
+// provide a json string using --json $filepath
+// or url list in --urls comma separated list
+const args = cli(['json:', 'urls:']);
+let populatorBackendName = 'alexa';
+if (args.json && args.urls) {
+  throw new Error('--json argument can\'t be used together with --urls');
+}
+if (args.json || args.urls) {
+  populatorBackendName = 'static';
+}
 
 // TODO: Clean up jobs
-
 let addingNewJobs = false;
 const queue = kue.createQueue({ jobEvents: false });
 
@@ -113,12 +124,19 @@ function startProcessingJobs() {
 // TODO Configure from a config file
 
 const configPromises = [];
-
-configPromises.push(urlJobPopulator.configure({
-  backendName: 'alexa',
+const urlJopPopulatorOptions = {
+  backendName: populatorBackendName,
   progressCallback: addJobs,
   finishedCallback: () => { addingNewJobs = false; },
-}));
+};
+if (args.json) {
+  urlJopPopulatorOptions.backendConfigOpts = { json: args.json };
+}
+if (args.urls) {
+  urlJopPopulatorOptions.backendConfigOpts = { urls: args.urls };
+}
+
+configPromises.push(urlJobPopulator.configure(urlJopPopulatorOptions));
 
 configPromises.push(dataStore.configure({
   backendName: 'redis',

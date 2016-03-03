@@ -1,0 +1,21 @@
+{
+    "urls": [
+        "airhorner.com/",
+        "busrouter.sg/",
+        "dev.opera.com/",
+        "flipboard.com/",
+        "m.flipkart.com/",
+        "guitar-tuner.appspot.com/",
+        "andreasbovens.github.io/inbox-attack/",
+        "www.oumy.com/",
+        "www.pokedex.org/",
+        "jakearchibald.github.io/trained-to-thrill/",
+        "twitter.com/",
+        "voice-memos.appspot.com/",
+        "wiki-offline.jakearchibald.com/",
+        "2048-opera-pwa.surge.sh/",
+        "getkana.com/app",
+        "alexgibson.github.io/wavepad/"
+    ],
+    "description": "the list is taken from https://github.com/operasoftware/pwa-list"
+}
