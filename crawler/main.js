@@ -84,7 +84,7 @@ function addJobs(urls) {
     index++;
 
     // TODO: Configurable retry attempts
-    queue.create('url', url).attempts(5).backoff(true).save((err) => {
+    queue.create('parse site', { title: url }).attempts(5).backoff(true).save((err) => {
       if (err) {
         console.error(`FAILED to add job: ${url}`);
         return;
@@ -99,7 +99,7 @@ function addJobs(urls) {
 
 function startProcessingJobs() {
   // TODO: Configurable number of urls processing concurrently
-  queue.process('url', 50, (job, done) => {
+  queue.process('parse site', 50, (job, done) => {
     urlJobProcessor.processUrlJob(job.data).then((result) => {
       return dataStore.updateWithCurrentCrawlResult(job.data, result).then(() => {
         done(null, result);

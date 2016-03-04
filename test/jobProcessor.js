@@ -26,7 +26,7 @@ describe('processUrlJob for a site', () => {
       .get('/')
       .reply(404);
 
-      return urlJobProcessor.processUrlJob('localhost:8000')
+      return urlJobProcessor.processUrlJob({ title: 'localhost:8000' })
       .then(ret => {
         assert.ok(site.isDone());
         assert.deepEqual(ret, probes);
@@ -40,7 +40,7 @@ describe('processUrlJob for a site', () => {
       .get('/')
       .reply(200, '<html></html>');
 
-      return urlJobProcessor.processUrlJob('localhost:8000')
+      return urlJobProcessor.processUrlJob({ title: 'localhost:8000' })
       .then(ret => {
         assert.ok(site.isDone());
         assert.deepEqual(ret, probes);
@@ -58,7 +58,7 @@ describe('processUrlJob for a site', () => {
       .get('/')
       .reply(200, '<html></html>');
 
-      return urlJobProcessor.processUrlJob('localhost')
+      return urlJobProcessor.processUrlJob({ title: 'localhost' })
       .then(ret => {
         assert.ok(site.isDone());
         probes.hasHTTPS = true;
@@ -77,7 +77,7 @@ describe('processUrlJob for a site', () => {
       .get('/')
       .reply(200, '<html></html>');
 
-      return urlJobProcessor.processUrlJob('localhost')
+      return urlJobProcessor.processUrlJob({ title: 'localhost' })
       .then(ret => {
         assert.ok(site.isDone());
         probes.hasHTTPS = true;
@@ -97,7 +97,7 @@ describe('processUrlJob for a site', () => {
       .get('/')
       .reply(200, '<html><link rel="manifest"></html>');
 
-      return urlJobProcessor.processUrlJob('localhost')
+      return urlJobProcessor.processUrlJob({ title: 'localhost' })
       .then(ret => {
         assert.ok(site.isDone());
         probes.hasHTTPS = true;
@@ -119,7 +119,7 @@ describe('processUrlJob for a site', () => {
       .get('/index.js')
       .reply(200, 'navigator.serviceWorker.register(\'sw.js\');');
 
-      return urlJobProcessor.processUrlJob('localhost')
+      return urlJobProcessor.processUrlJob({ title: 'localhost' })
       .then(ret => {
         assert.ok(site.isDone());
         probes.hasHTTPS = true;
@@ -141,7 +141,7 @@ describe('processUrlJob for a site', () => {
       .get('/index.js')
       .reply(200, 'registration.pushManager.subscribe();');
 
-      return urlJobProcessor.processUrlJob('localhost')
+      return urlJobProcessor.processUrlJob({ title: 'localhost' })
       .then(ret => {
         assert.ok(site.isDone());
         probes.hasHTTPS = true;
