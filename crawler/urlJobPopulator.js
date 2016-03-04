@@ -7,7 +7,7 @@ function configure(configOpts) {
   if (configOpts.backendPath) {
     backendPath = configOpts.backendPath;
   } else if (configOpts.backendName) {
-    backendPath = `./UrlJobPopulatorBackends/${configOpts.backendName}.js`;
+    backendPath = `./urlJobPopulatorBackends/${configOpts.backendName}.js`;
   }
 
   if (!backendPath) {
@@ -20,6 +20,10 @@ function configure(configOpts) {
 
   if (!configOpts.finishedCallback) {
     return Promise.reject(new Error('A finished callback must be specified'));
+  }
+
+  if (configOpts.backendName === 'static' && !(configOpts.backendConfigOpts.json || configOpts.backendConfigOpts.urls)) {
+    return Promise.reject(new Error('JSON file or urls need to be provided for static backend'));
   }
 
   backend = require(backendPath).default;

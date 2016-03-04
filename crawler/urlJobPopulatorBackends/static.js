@@ -1,41 +1,47 @@
-let list = [
-  'google.com',
-  'yahoo.com',
-  'bing.com',
-  'duckduckgo.com',
-  'eff.org',
-  'mozilla.org',
-  'mozilla.com',
-  'wadi-pwa.sloppy.zone',
-  'stubhub.com',
-  'houstonchronicle.com',
-  'caron.com',
-  'mysa.com',
-  'expressnews.com',
-  'younow.com',
-  'weather.com',
-  'hubspot.com',
-  'nestle.com',
-  'cbsnews.com',
-  'facebook.com',
-  'pinterest.com',
-  'googlechrome.github.io/samples/web-application-manifest',
-];
+import { default as fs } from 'fs';
 
+let list;
 let currentIndex = 0;
 let intervalID;
 
+// read JSON file and return a promise after it's done
+// save the list in list variable
+function parseJSONList(fileName) {
+  let obj;
+  let filePath = `./${fileName}`;
+  return new Promise((resolve, reject) => {
+    fs.readFile(filePath, 'utf8', function (err, data) {
+      if (err) {
+        return reject(err);
+      }
+      obj = JSON.parse(data);
+      if (!obj.urls) {
+        return reject('No urls in JSON file');
+      }
+      list = obj.urls;
+      resolve();
+    });
+  });
+}
+
 function configure(opts) {
   if (opts.urls) {
-    list = opts.urls;
+    list = opts.urls.split(',');
+    return Promise.resolve();
   }
-  return Promise.resolve();
+  if (opts.json) {
+    return parseJSONList(opts.json);
+  }
+  return Promise.reject();
 }
 
 function actuallyPopulate(progressCallback, finishedCallback) {
   const ret = [];
   if (currentIndex === list.length) {
     clearInterval(intervalID);
+    // reset index - important for testing when we run the function
+    // several times
+    currentIndex = 0;
     return finishedCallback();
   }
   ret.push(list[currentIndex++]);
@@ -43,7 +49,6 @@ function actuallyPopulate(progressCallback, finishedCallback) {
     return progressCallback(ret);
   }
   ret.push(list[currentIndex++]);
-
   return progressCallback(ret);
 }
 
