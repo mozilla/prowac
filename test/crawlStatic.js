@@ -51,7 +51,7 @@ describe('with urls from command line', () => {
   context('populator backend', () => {
     beforeEach(() => kue.clear());
 
-    it('should add 2 jobs to kue', function(done) {
+    it('should add 2 jobs to kue', done => {
       // do not show slow info
       this.slow(10000);
       return configureUrlJobPopulator('urls', { urls: 'google.com,wordpress.com' })
@@ -88,7 +88,7 @@ describe('with JSON from command line', () => {
       });
     });
 
-    it('should add 2 jobs to kue', function(done) {
+    it('should add 2 jobs to kue', done => {
       // do not show slow info
       this.slow(10000);
       return configureUrlJobPopulator('json', { json: 'test/fixtures/static.json' })
