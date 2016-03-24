@@ -3,28 +3,28 @@ import { default as dataStore } from '../dist/dataStore/dataStore.js';
 
 function addCrawl() {
   return dataStore.updateWithCurrentCrawlResult('url1.com', {
-    timestamp: new Date(),
-    totalRecords: true,
     testProbe1: false,
     testProbe2: false,
     testProbe3: true,
+    testProbe4: false,
+    // TODO explain extraData - should it be saved? currently it is
+    // considered as truthy
     extraData: 'something here',
   }).then(() => {
+    console.log('ZZZ first crawl added');
     return dataStore.updateWithCurrentCrawlResult('url2.com', {
-      timestamp: new Date(),
-      totalRecords: true,
       testProbe1: false,
       testProbe2: true,
       testProbe3: true,
+      testProbe4: false,
       extraData: 'something else here',
     });
   }).then(() => {
     return dataStore.updateWithCurrentCrawlResult('url3.com', {
-      timestamp: new Date(),
-      totalRecords: true,
       testProbe1: true,
       testProbe2: true,
       testProbe3: true,
+      testProbe4: false,
       extraData: 'and another thing',
     });
   }).then(() => {
@@ -43,6 +43,7 @@ function testGetHistoricalCrawlData(numInDB, startIndex, count) {
       assert.equal(dataItem.testProbe1, 1);
       assert.equal(dataItem.testProbe2, 2);
       assert.equal(dataItem.testProbe3, 3);
+      assert.equal(dataItem.testProbe4, 0, 'testProbe4');
     });
   });
 }
@@ -55,6 +56,7 @@ function testGetHistoricalURLData(numInDB, count) {
       assert.strictEqual(dataItem.testProbe1, false);
       assert.strictEqual(dataItem.testProbe2, false);
       assert.strictEqual(dataItem.testProbe3, true);
+      assert.strictEqual(dataItem.testProbe4, false);
     });
   }).then(() => {
     return dataStore.getHistoricalURLData('url2.com', count).then((data) => {
@@ -64,6 +66,7 @@ function testGetHistoricalURLData(numInDB, count) {
         assert.strictEqual(dataItem.testProbe1, false);
         assert.strictEqual(dataItem.testProbe2, true);
         assert.strictEqual(dataItem.testProbe3, true);
+        assert.strictEqual(dataItem.testProbe4, false);
       });
     });
   }).then(() => {
@@ -74,6 +77,7 @@ function testGetHistoricalURLData(numInDB, count) {
         assert.strictEqual(dataItem.testProbe1, true);
         assert.strictEqual(dataItem.testProbe2, true);
         assert.strictEqual(dataItem.testProbe3, true);
+        assert.strictEqual(dataItem.testProbe4, false);
       });
     });
   });
@@ -101,9 +105,7 @@ function doTests() {
   });
 
   context('with 1 completed crawl', () => {
-    before(() => {
-      return addCrawl();
-    });
+    before(addCrawl);
 
     context('getHistoricalCrawlData', () => {
       it('should return items in range', () => {

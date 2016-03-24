@@ -31,7 +31,7 @@ function getHistoricalURLData(url, count) {
   });
 }
 
-function addPromise(promises) {
+function addPromise(promises, ...kwargs) {
   let resolve;
   let reject;
   const p = new Promise((res, rej) => {
@@ -44,18 +44,51 @@ function addPromise(promises) {
     if (err) {
       return reject(err);
     }
-    return resolve(response);
+    return resolve(response, ...kwargs);
   };
 }
 
 function updateWithCurrentCrawlResult(url, data) {
   const promises = [];
+  const timeStamp = new Date();
 
-  client.lpush(`historical-data:${url}`, JSON.stringify(data), addPromise(promises));
+  const historicalData = data;
+  historicalData.timeStamp = timeStamp;
 
+  client.lpush(`historical-data:${url}`, JSON.stringify(historicalData), addPromise(promises));
+  data.totalRecords = true;
+
+  function setCurrentAggregatedData(key) {
+    if (data[key] === true) {
+      client.hincrby('current-crawl-aggregated-data', key, 1, addPromise(promises));
+      return;
+    }
+    const promise = new Promise((resolve, reject) => {
+      client.hget('current-crawl-aggregated-data', key, (err1, value) => {
+        if (err1) {
+          reject(err1);
+          return;
+        }
+        if (value === null) {
+          client.hset('current-crawl-aggregated-data', key, 0, (err2, response) => {
+            if (err2) {
+              reject(err2);
+              return;
+            }
+            resolve(response);
+          });
+          return;
+        }
+        resolve();
+      });
+    });
+    promises.push(promise);
+  }
+
+  client.hset('current-crawl-aggregated-data', 'timeStamp', timeStamp, addPromise(promises));
   for (const i in data) {
-    if (data.hasOwnProperty(i) && data[i] === true) {
-      client.hincrby('current-crawl-aggregated-data', i, 1, addPromise(promises));
+    if (data.hasOwnProperty(i)) {
+      setCurrentAggregatedData(i);
     }
   }
 
