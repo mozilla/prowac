@@ -112,7 +112,7 @@ function startProcessingJobs() {
   // TODO: Configurable number of urls processing concurrently
   queue.process('parse site', 50, (job, done) => {
     urlJobProcessor.processUrlJob(job.data).then((result) => {
-      return dataStore.updateWithCurrentCrawlResult(job.data, result).then(() => {
+      return dataStore.updateWithCurrentCrawlResult(job.data.title, result).then(() => {
         done(null, result);
       });
     }).catch((err) => {
