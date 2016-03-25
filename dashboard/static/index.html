@@ -1,17 +1,53 @@
 <!DOCTYPE html>
-
-<!--
-  Dashboard
--->
-
 <html>
-  <head>
-    <meta charset="utf-8">
-    <title>Prowac Dashboard</title>
-  </head>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+  <title>Prowac Dashboard</title>
 
-  <body>
-    This file exists as a placeholder for the real dashboard implementation.
-  </body>
+  <meta name="theme-color" content="#00549e">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
 
+  <link rel="stylesheet" href="style.css" inline>
+
+  <meta property="og:locale" content="en_US">
+  <meta property="og:title" content="Progressive Web App Crawler Dashboard">
+  <meta property="og:description" content="Progressive Web App Crawler Dashboard gives usage statistics for various browser features in popular websites">
+  <meta property="og:site_name" content="Progressive Web App Crawler Dashboard">
+  <meta name="twitter:description" content="Progressive Web App Crawler Dashboard gives usage statistics for various browser features in popular websites">
+  <meta name="twitter:title" content="Progressive Web App Crawler Dashboard">
+  <meta name="twitter:site" content="@firefox">
+  <meta name="twitter:creator" content="@firefox">
+
+  <script type="text/javascript" src="Chart.js" async></script>
+  <script type="text/javascript" src="index.js" async></script>
+</head>
+<body>
+  <form>
+    <label>Url: <input id='url-input' type='text'></label>
+    <label>Count: <input id='url-count-input' type='number'></label>
+    <button id='historical-url-button'>Get URL data</button>
+  </form>
+
+  <form>
+    <label>Start: <input id='aggregate-start-input' type='number'></label>
+    <label>Count: <input id='aggregate-count-input' type='number'></label>
+    <button id='aggregate-button'>Get aggregate data</button>
+  </form>
+
+  <div class='output-box'>
+    <label>Output:
+      <output id='out'></output>
+    </label>
+  </div>
+
+  <div class='output-box'>
+    <label>Recent completed jobs (refreshes every 5s):
+      <output id='lastJobs'></output>
+    </label>
+  </div>
+  <canvas id="myChart" width="400" height="400"></canvas>
+  
+</body>
 </html>

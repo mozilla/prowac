@@ -8,7 +8,6 @@ function configure() {
 }
 
 function processUrlJob(data) {
-  console.log(data);
   const urlStr = data.title;
   console.log(`[${Date.now()}] start - ${urlStr}`);
 
