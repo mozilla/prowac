@@ -22,19 +22,30 @@ function getHistoricalURLData(url, count) {
 }
 
 function updateWithCurrentCrawlResult(url, data) {
+  const timeStamp = new Date();
   let urlData = historicalData[url];
   if (!urlData) {
     historicalData[url] = [];
     urlData = historicalData[url];
   }
-  urlData.push(data);
+  const hData = data;
+  hData.timeStamp = timeStamp;
+  urlData.push(hData);
+  data.totalRecords = true;
 
+  currentCrawlAggregatedData.timeStamp = timeStamp;
   for (const i in data) {
-    if (data.hasOwnProperty(i) && data[i] === true) {
-      if (!currentCrawlAggregatedData[i]) {
-        currentCrawlAggregatedData[i] = 1;
+    if (data.hasOwnProperty(i)) {
+      if (data[i] === true) {
+        if (!currentCrawlAggregatedData[i]) {
+          currentCrawlAggregatedData[i] = 1;
+        } else {
+          currentCrawlAggregatedData[i] += 1;
+        }
       } else {
-        currentCrawlAggregatedData[i] += 1;
+        if (currentCrawlAggregatedData[i] === undefined) {
+          currentCrawlAggregatedData[i] = 0;
+        }
       }
     }
   }
