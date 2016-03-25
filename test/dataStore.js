@@ -11,7 +11,6 @@ function addCrawl() {
     // considered as truthy
     extraData: 'something here',
   }).then(() => {
-    console.log('ZZZ first crawl added');
     return dataStore.updateWithCurrentCrawlResult('url2.com', {
       testProbe1: false,
       testProbe2: true,
