@@ -1,0 +1,8 @@
+{
+  "globals": {
+    "Chart": true
+  },
+  "rules": {
+    "new-cap": 0
+  }
+}

@@ -23,10 +23,10 @@ function getHistoricalURLData(url, count) {
       if (err) {
         return reject(err);
       }
-      response.forEach((json, index, arr) => {
-        arr[index] = JSON.parse(json);
+      const ret = response.map((json) => {
+        return JSON.parse(json);
       });
-      return resolve(response);
+      return resolve(ret);
     });
   });
 }
