@@ -81,7 +81,6 @@ describe('processUrlJob for a site', () => {
       .then(ret => {
         assert.ok(site.isDone());
         probes.hasHTTPS = true;
-        probes.hasManifest = true;
         assert.deepEqual(ret, probes);
       });
     });

@@ -30,30 +30,18 @@ function processUrlJob(data) {
   return fetch(httpUrl.href, fetchParams).catch(() => {
     // Ignore errors trying to fetch HTTP
     return null;
-  }).then((httpResponse) => {
+  })
+  .then((httpResponse) => {
     if (httpResponse) {
-      // Check the HTTP response for a W3C App Manifest
-      return httpResponse.text().then((htmlText) => {
-        const $ = cheerio.load(htmlText);
-        $('link[rel="manifest"]').each(() => {
-          ret.hasManifest = true;
-          return false;
-        });
-      }).catch((err) => {
-        // Log and ignore issues when parsing HTTP response
-        console.error(`Unexpected error parsing HTTP response: ${err}`);
-      }).then(() => {
-        // Check whether we were redirected to HTTPS
-        const responseUrl = urlModule.parse(httpResponse.url);
-        if (responseUrl.protocol === 'https:') {
-          ret.hasHTTPSRedirect = true;
-          return httpResponse;
-        }
-
-        return null;
-      });
+      // Check whether we were redirected to HTTPS
+      const responseUrl = urlModule.parse(httpResponse.url);
+      if (responseUrl.protocol === 'https:') {
+        ret.hasHTTPSRedirect = true;
+        return httpResponse;
+      }
     }
-  }).then((httpsResponse) => {
+  })
+  .then((httpsResponse) => {
     // If we already fetched over HTTPS thanks to an HTTP redirect
     // just keep the previous response. If not, we have to fetch over
     // HTTPS now.
@@ -61,56 +49,87 @@ function processUrlJob(data) {
       return fetch(httpsUrl.href, fetchParams);
     }
     return httpsResponse;
-  }).then((httpsResponse) => {
+  })
+  .then((httpsResponse) => {
+    if (httpsResponse.headers.has('Strict-Transport-Security')) {
+      ret.hasHSTS = true;
+    }
     ret.hasHTTPS = true;
     return httpsResponse.text();
-  }).then((htmlText) => {
+  })
+  .then((htmlText) => {
     const $ = cheerio.load(htmlText);
+    const fetchPromises = [];
 
     // Check the HTTPS response for a W3C App Manifest
-    $('link[rel="manifest"]').each(() => {
+    $('link[rel="manifest"]').each((index, elem) => {
       ret.hasManifest = true;
-      return false;
+      const href = $(elem).attr('href');
+      const resolvedSrc = urlModule.resolve(httpsUrl.href, href);
+      fetchPromises.push(
+        fetch(resolvedSrc)
+          .catch(() => {
+            // Ignore errors trying to fetch individual scripts
+          })
+          .then((manifestResponse) => {
+            return manifestResponse.json();
+          })
+          .then((manifest) => {
+            if (manifest.gcm_sender_id) {
+              ret.hasPushSubscription = true;
+            }
+          })
+      );
     });
 
     const scripts = [];
-    const fetchPromises = [];
     $('script').each((index, elem) => {
       const src = $(elem).attr('src');
       if (!src) {
         scripts.push($(elem).text());
       } else {
         const resolvedSrc = urlModule.resolve(httpsUrl.href, src);
-        fetchPromises.push(fetch(resolvedSrc).catch(() => {
-          // Ignore errors trying to fetch individual scripts
-        }).then((scriptResponse) => {
-          return scriptResponse.text();
-        }).then((jsText) => {
-          return scripts.push(jsText);
-        }));
+        fetchPromises.push(
+          fetch(resolvedSrc).catch(() => {
+            console.warn('Could not fetch script %s', resolvedSrc);
+            // Ignore errors trying to fetch individual scripts
+          })
+          .then((scriptResponse) => {
+            return scriptResponse.text();
+          })
+          .then((jsText) => {
+            return scripts.push(jsText);
+          })
+        );
       }
     });
 
-    return Promise.all(fetchPromises).then(() => scripts);
-  }).then((scripts) => {
+    return Promise.all(fetchPromises)
+      .then(() => scripts);
+  })
+  .then((scripts) => {
+    console.log('Checking %d scripts', scripts.length);
     const swStr = '.serviceWorker';
-    const regStr = '.register';
-    const pushStr = 'pushManager.subscribe';
-
+    const regStr = '.register(';
+    const pushStr = '.pushManager';
+    const subscribeStr = '.subscribe(';
 
     scripts.forEach((script) => {
       if (script.indexOf(swStr) !== -1 && script.indexOf(regStr) !== -1) {
         ret.hasServiceWorker = true;
       }
-      if (script.indexOf(pushStr) !== -1) {
+      if (script.indexOf(pushStr) !== -1 && script.indexOf(subscribeStr) !== -1) {
         ret.hasPushSubscription = true;
       }
     });
-  }).catch((err) => {
+  })
+  .catch((err) => {
     // Ignore errors. Specifically, errors trying to fetch over HTTPS will
     // end up in this block.
-    console.log(`${urlStr} early exit thanks to ${err}`);
-  }).then(() => {
+    console.log(`${urlStr} early exit`);
+    console.log(err);
+  })
+  .then(() => {
     console.log(`[${Date.now()}] finish - ${urlStr} - ${JSON.stringify(ret)}`);
     return ret;
   });
