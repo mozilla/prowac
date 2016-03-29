@@ -40,7 +40,7 @@ function getUrl(req, res) {
   const count = req.query.count;
 
   console.log(`getUrl ${count} ${url}`);
-  dataStore.getHistoricalURLData('google.com', count).then((data) => {
+  dataStore.getHistoricalURLData(url, count).then((data) => {
     res.send(JSON.stringify(data));
   });
 }
