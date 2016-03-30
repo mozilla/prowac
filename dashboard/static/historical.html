@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
-  <title>Prowac Dashboard</title>
+  <title>Prowac Historical Info</title>
 
   <meta name="theme-color" content="#00549e">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -20,13 +20,33 @@
   <meta name="twitter:site" content="@firefox">
   <meta name="twitter:creator" content="@firefox">
 
-  <script type="text/javascript" src="Chart.js" async></script>
-  <script type="text/javascript" src="index.js" async></script>
+  <script type="text/javascript" src="historical.js" async></script>
 </head>
 <body>
-  <h1>Prowac dashboard</h1>
-  <p><a href="/historical.html">Get historical data</a></p>
-  <canvas id="myChart" width="400" height="400"></canvas>
-  
+  <h1>Prowac historical data</h1>
+  <p><a href="/">Dashboard</a></p>
+  <form>
+    <label>Url: <input id='url-input' type='text'></label>
+    <label>Count: <input id='url-count-input' type='number'></label>
+    <button id='historical-url-button'>Get URL data</button>
+  </form>
+
+  <form>
+    <label>Start: <input id='aggregate-start-input' type='number'></label>
+    <label>Count: <input id='aggregate-count-input' type='number'></label>
+    <button id='aggregate-button'>Get aggregate data</button>
+  </form>
+
+  <div class='output-box'>
+    <label>Output:
+      <output id='out'></output>
+    </label>
+  </div>
+
+  <div class='output-box'>
+    <label>Recent completed jobs (refreshes every 5s):
+      <output id='lastJobs'></output>
+    </label>
+  </div>
 </body>
 </html>
