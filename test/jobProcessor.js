@@ -154,7 +154,7 @@ describe('processUrlJob for a site', () => {
   });
 });
 
-describe('broken sites', () => {
+describe('recaction to broken sites', () => {
   let nodeTlsEnv;
 
   before(() => {
@@ -167,7 +167,7 @@ describe('broken sites', () => {
   });
 
   context('with a broken gzip', () => {
-    it('should print the error', () => {
+    it('should silence the error', () => {
       let closePromise;
 
       function getPort() {
