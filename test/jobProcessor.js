@@ -1,6 +1,9 @@
 import { assert } from 'chai';
 import { default as urlJobProcessor } from '../crawler/urlJobProcessor.js';
 import { default as nock } from 'nock';
+import { default as portfinder } from 'portfinder';
+import { default as https } from 'https';
+import { default as fs } from 'fs';
 
 let probes;
 
@@ -146,6 +149,78 @@ describe('processUrlJob for a site', () => {
         probes.hasHTTPS = true;
         probes.hasPushSubscription = true;
         assert.deepEqual(ret, probes);
+      });
+    });
+  });
+});
+
+describe('recaction to broken sites', () => {
+  let nodeTlsEnv;
+
+  before(() => {
+    nodeTlsEnv = process.env.NODE_TLS_REJECT_UNAUTHORIZED;
+    process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+  });
+
+  after(() => {
+    process.env.NODE_TLS_REJECT_UNAUTHORIZED = nodeTlsEnv;
+  });
+
+  context('with a broken gzip', () => {
+    it('should silence the error', () => {
+      let closePromise;
+
+      function getPort() {
+        return new Promise((resolve, reject) => {
+          portfinder.getPort((err, port) => {
+            if (err) {
+              return reject(err);
+            }
+            resolve(port);
+          });
+        });
+      }
+
+      function serveGzip(port, data) {
+        const options = {
+          key: fs.readFileSync('test/fixtures/server.key'),
+          cert: fs.readFileSync('test/fixtures/server.crt'),
+          requestCert: false,
+          rejectUnauthorized: false,
+        };
+
+        const server = https.createServer(options, (req, res) => {
+          res.writeHead(200, { 'Content-Encoding': 'gzip' });
+          res.end(data);
+          server.close();
+        }).listen(port);
+
+        closePromise = new Promise(resolve => {
+          server.on('close', resolve);
+        });
+
+        return new Promise(resolve => {
+          server.on('listening', resolve);
+        });
+      }
+
+      return new Promise((resolve, reject) => {
+        fs.readFile('./test/attachments/broken.gz', 'utf8', (err, data) => {
+          if (err) {
+            reject(err);
+            return;
+          }
+          resolve(data);
+        });
+      })
+      .then(data => getPort()
+        .then(port => serveGzip(port, data)
+          .then(() => urlJobProcessor.processUrlJob({ title: `localhost:${port}` }))
+        )
+      )
+      .then(ret => {
+        assert.ok(ret);
+        return closePromise;
       });
     });
   });

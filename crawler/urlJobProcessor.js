@@ -1,6 +1,7 @@
 import { default as fetch } from 'node-fetch';
 import { default as cheerio } from 'cheerio';
 import { default as urlModule } from 'url';
+// import { default as http } from 'http';
 
 function configure() {
   // TODO: Add any necessary configuration here
@@ -55,9 +56,15 @@ function processUrlJob(data) {
       ret.hasHSTS = true;
     }
     ret.hasHTTPS = true;
-    return httpsResponse.text();
+    return httpsResponse.text()
+    .catch(err => {
+      console.log('ERROR', err.message);
+    });
   })
   .then((htmlText) => {
+    if (!htmlText) {
+      return [];
+    }
     const $ = cheerio.load(htmlText);
     const fetchPromises = [];
 
